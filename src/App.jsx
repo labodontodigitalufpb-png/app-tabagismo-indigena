@@ -4,9 +4,10 @@ import "./App.css";
 const HEADER_PARTNERSHIP =
   "Parceria PET Saúde Digital / UNESP SJC Odontologia / LABODIGIT UFPB";
 
-const STORAGE_KEY = "app_tabagismo_casos_v3";
+const STORAGE_KEY = "app_tabagismo_casos_v4";
+
 const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxwFvKybwSJjYVpJSjlkqgIMFP3Va50qsJn6HgMDPY_DjnSRiN1CEbM6huztc7v9Wk0/exec";
+  "https://script.google.com/macros/s/AKfycbxoT_1U2HJX6dQDXOFCYpVyulxvR_AjHGEEo08eqB5EdMt1k4Irv1_2vWD0wma8Ajpf/exec";
 
 const PRODUTOS_TABACO = [
   "cigarro",
@@ -129,9 +130,9 @@ function scoreCultural(cultural) {
   if (cultural.diferencaTradicionalComercial === "nao") score += 2;
   if (cultural.contextoUso.includes("ritual")) score += 1;
   if (cultural.contextoUso.includes("cotidiano")) score += 2;
+  if (cultural.finalidadeUso.includes("dependencia")) score += 2;
   if (cultural.finalidadeUso.includes("dependência")) score += 2;
   if (cultural.finalidadeUso.includes("social")) score += 1;
-  if (cultural.finalidadeUso.includes("dependencia")) score += 2;
 
   return Math.min(score, 8);
 }
@@ -265,61 +266,47 @@ export default function App() {
     setEnviandoSheets(true);
     setMensagemEnvio("");
 
-    const resumo = casos.map((caso, index) => ({
-      casoNumero: index + 1,
-      identificacao: caso.identificacao,
-      idade: caso.idade,
-      sexo: caso.sexo,
-      aldeia: caso.aldeia,
-      municipio: caso.municipio,
-      estado: caso.estado,
-      etnia: caso.etnia,
-      entrevistador: caso.entrevistador,
-      data: caso.data,
-      usoAtual: caso.usoAtual,
-      frequencia: caso.frequencia,
-      produtoPrincipal: caso.produtoPrincipal,
-      scoreUso: caso.scoreUso,
-      scoreFagerstrom: caso.scoreFagerstrom,
-      scoreCultural: caso.scoreCultural,
-      scoreTotal: caso.scoreTotal,
-      prioridadeFinal: caso.prioridadeFinal,
-    }));
-
-    const payload = {
-      origem: "app-tabagismo-indigena",
-      timestampEnvio: new Date().toISOString(),
-      quantidadeCasos: casos.length,
-      casos,
-      resumo,
-    };
-
     try {
+      const formData = new FormData();
+      formData.append(
+        "payload",
+        JSON.stringify({
+          origem: "app-tabagismo-indigena",
+          timestampEnvio: new Date().toISOString(),
+          quantidadeCasos: casos.length,
+          casos,
+        })
+      );
+
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const texto = await response.text();
+      console.log("Resposta do Apps Script:", texto);
+
+      let json = {};
+      try {
+        json = JSON.parse(texto);
+      } catch {
+        json = {};
+      }
 
       if (!response.ok) {
-        throw new Error(`Erro HTTP ${response.status}: ${texto}`);
+        throw new Error(`Erro HTTP ${response.status}`);
+      }
+
+      if (json.sucesso === false) {
+        throw new Error(json.mensagem || "Falha no envio.");
       }
 
       setMensagemEnvio("Dados enviados com sucesso para o Google Sheets.");
       alert("Dados enviados com sucesso para o Google Sheets.");
-      console.log("Resposta do Apps Script:", texto);
     } catch (error) {
       console.error("Erro ao enviar para Google Sheets:", error);
-      setMensagemEnvio(
-        "Não foi possível enviar os dados. Verifique o Apps Script e as permissões."
-      );
-      alert(
-        "Erro ao enviar para o Google Sheets. Verifique o Apps Script e as permissões."
-      );
+      setMensagemEnvio("Não foi possível enviar os dados ao Google Sheets.");
+      alert("Erro ao enviar para o Google Sheets.");
     } finally {
       setEnviandoSheets(false);
     }
@@ -365,7 +352,6 @@ export default function App() {
               updateNested("participante", "identificacao", e.target.value)
             }
           />
-
           <input
             placeholder="Idade"
             value={form.participante.idade}
@@ -373,7 +359,6 @@ export default function App() {
               updateNested("participante", "idade", e.target.value)
             }
           />
-
           <input
             placeholder="Sexo"
             value={form.participante.sexo}
@@ -381,7 +366,6 @@ export default function App() {
               updateNested("participante", "sexo", e.target.value)
             }
           />
-
           <input
             placeholder="Aldeia"
             value={form.participante.aldeia}
@@ -389,7 +373,6 @@ export default function App() {
               updateNested("participante", "aldeia", e.target.value)
             }
           />
-
           <input
             placeholder="Município"
             value={form.participante.municipio}
@@ -397,7 +380,6 @@ export default function App() {
               updateNested("participante", "municipio", e.target.value)
             }
           />
-
           <input
             placeholder="Estado"
             value={form.participante.estado}
@@ -405,7 +387,6 @@ export default function App() {
               updateNested("participante", "estado", e.target.value)
             }
           />
-
           <input
             placeholder="Etnia"
             value={form.participante.etnia}
@@ -413,7 +394,6 @@ export default function App() {
               updateNested("participante", "etnia", e.target.value)
             }
           />
-
           <input
             placeholder="Entrevistador"
             value={form.participante.entrevistador}
@@ -421,13 +401,11 @@ export default function App() {
               updateNested("participante", "entrevistador", e.target.value)
             }
           />
-
           <input
             type="date"
             value={form.participante.data}
             onChange={(e) => updateNested("participante", "data", e.target.value)}
           />
-
           <input
             placeholder="Idioma"
             value={form.participante.idioma}
@@ -445,14 +423,12 @@ export default function App() {
         >
           Instrumento 1
         </button>
-
         <button
           className={tab === "fagerstrom" ? "active" : ""}
           onClick={() => setTab("fagerstrom")}
         >
           Instrumento 2
         </button>
-
         <button
           className={tab === "cultural" ? "active" : ""}
           onClick={() => setTab("cultural")}
@@ -821,17 +797,14 @@ export default function App() {
           <strong>Instrumento 1:</strong> {usoScore} pontos —{" "}
           {classifyUso(usoScore)}
         </p>
-
         <p>
           <strong>Instrumento 2:</strong> {fagerScore} pontos — dependência{" "}
           {classifyFagerstrom(fagerScore)}
         </p>
-
         <p>
           <strong>Instrumento 3:</strong> {culturalScore} pontos —{" "}
           {classifyCultural(culturalScore)}
         </p>
-
         <p>
           <strong>Prioridade final:</strong> {prioridade}
         </p>
