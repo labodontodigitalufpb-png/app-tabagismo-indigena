@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 const HEADER_PARTNERSHIP =
-  "Parceria PET Saúde Digital Unifal e UFAM / UNESP SJC Odontologia / LABODIGIT UFPB";
+  "Parceria PET Saúde Digital Unifal e UFAM
+   / UNESP SJC Odontologia / LABODIGIT UFPB";
 
 const STORAGE_KEY = "app_tabagismo_casos_v5";
 
