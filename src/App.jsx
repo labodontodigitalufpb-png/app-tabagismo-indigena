@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 const HEADER_PARTNERSHIP =
-  "Parceria PET Saúde Digital / UNESP SJC Odontologia / LABODIGIT UFPB";
+  "Parceria PET Saúde Digital Unifal e UFAM / UNESP SJC Odontologia / LABODIGIT UFPB";
 
-const STORAGE_KEY = "app_tabagismo_casos_v4";
+const STORAGE_KEY = "app_tabagismo_casos_v5";
 
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbxoT_1U2HJX6dQDXOFCYpVyulxvR_AjHGEEo08eqB5EdMt1k4Irv1_2vWD0wma8Ajpf/exec";
@@ -18,6 +18,45 @@ const PRODUTOS_TABACO = [
   "charuto",
   "cigarro eletrônico",
   "narguilé",
+  "maconha",
+];
+
+const AUDIT_Q1_OPTIONS = [
+  { label: "Nunca", value: "0" },
+  { label: "Mensalmente ou menos", value: "1" },
+  { label: "2 a 4 vezes por mês", value: "2" },
+  { label: "2 a 3 vezes por semana", value: "3" },
+  { label: "4 ou mais vezes por semana", value: "4" },
+];
+
+const AUDIT_Q2_OPTIONS = [
+  { label: "1 ou 2 doses", value: "0" },
+  { label: "3 ou 4 doses", value: "1" },
+  { label: "5 ou 6 doses", value: "2" },
+  { label: "7 a 9 doses", value: "3" },
+  { label: "10 ou mais doses", value: "4" },
+];
+
+const AUDIT_Q3_OPTIONS = [
+  { label: "Nunca", value: "0" },
+  { label: "Menos de uma vez por mês", value: "1" },
+  { label: "Mensalmente", value: "2" },
+  { label: "Semanalmente", value: "3" },
+  { label: "Diariamente ou quase diariamente", value: "4" },
+];
+
+const AUDIT_Q4_TO_Q8_OPTIONS = [
+  { label: "Nunca", value: "0" },
+  { label: "Menos de uma vez por mês", value: "1" },
+  { label: "Mensalmente", value: "2" },
+  { label: "Semanalmente", value: "3" },
+  { label: "Diariamente ou quase diariamente", value: "4" },
+];
+
+const AUDIT_Q9_Q10_OPTIONS = [
+  { label: "Não", value: "0" },
+  { label: "Sim, mas não no último ano", value: "2" },
+  { label: "Sim, durante o último ano", value: "4" },
 ];
 
 const initialState = {
@@ -63,6 +102,18 @@ const initialState = {
     produtoLocal: [],
     formaConsumo: [],
     comentarios: "",
+  },
+  audit: {
+    q1: "",
+    q2: "",
+    q3: "",
+    q4: "",
+    q5: "",
+    q6: "",
+    q7: "",
+    q8: "",
+    q9: "",
+    q10: "",
   },
 };
 
@@ -143,6 +194,35 @@ function classifyCultural(score) {
   return "Alta complexidade cultural";
 }
 
+function scoreAUDIT(audit) {
+  return Object.values(audit).reduce((acc, value) => acc + Number(value || 0), 0);
+}
+
+function classifyAUDIT(score) {
+  if (score <= 7) return "Baixo risco";
+  if (score <= 15) return "Uso de risco";
+  if (score <= 19) return "Uso nocivo";
+  return "Provável dependência";
+}
+
+function classifyDependenciaGeral(total) {
+  if (total <= 7) return "Ausente / Baixo";
+  if (total <= 13) return "Moderado";
+  return "Alto";
+}
+
+function getDependenciaBarClass(total) {
+  if (total <= 7) return "level-low";
+  if (total <= 13) return "level-medium";
+  return "level-high";
+}
+
+function getDependenciaBarWidth(total) {
+  const maxScore = 34;
+  const percent = Math.max(0, Math.min((total / maxScore) * 100, 100));
+  return `${percent}%`;
+}
+
 function loadCasesFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -152,6 +232,22 @@ function loadCasesFromStorage() {
   } catch {
     return [];
   }
+}
+
+function AuditQuestion({ title, value, onChange, options }) {
+  return (
+    <div className="audit-question">
+      <label className="audit-label">{title}</label>
+      <select value={value} onChange={onChange}>
+        <option value="">Selecione</option>
+        {options.map((option) => (
+          <option key={`${title}-${option.label}`} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
 }
 
 export default function App() {
@@ -187,12 +283,14 @@ export default function App() {
     [form.cultural]
   );
 
-  const total = fagerScore + usoScore + culturalScore;
+  const auditScore = useMemo(() => scoreAUDIT(form.audit), [form.audit]);
+
+  const total = fagerScore + usoScore + culturalScore + auditScore;
 
   const prioridade =
-    total <= 7
+    total <= 10
       ? "Baixa prioridade"
-      : total <= 13
+      : total <= 20
       ? "Prioridade moderada"
       : "Alta prioridade para abordagem";
 
@@ -239,14 +337,28 @@ export default function App() {
       formaConsumo: form.cultural.formaConsumo.join(", "),
       comentarios: form.cultural.comentarios,
 
+      auditQ1: form.audit.q1,
+      auditQ2: form.audit.q2,
+      auditQ3: form.audit.q3,
+      auditQ4: form.audit.q4,
+      auditQ5: form.audit.q5,
+      auditQ6: form.audit.q6,
+      auditQ7: form.audit.q7,
+      auditQ8: form.audit.q8,
+      auditQ9: form.audit.q9,
+      auditQ10: form.audit.q10,
+
       scoreUso: usoScore,
       classificacaoUso: classifyUso(usoScore),
       scoreFagerstrom: fagerScore,
       classificacaoFagerstrom: classifyFagerstrom(fagerScore),
       scoreCultural: culturalScore,
       classificacaoCultural: classifyCultural(culturalScore),
+      scoreAUDIT: auditScore,
+      classificacaoAUDIT: classifyAUDIT(auditScore),
       scoreTotal: total,
       prioridadeFinal: prioridade,
+      classificacaoGeral: classifyDependenciaGeral(total),
       dataRegistro: new Date().toISOString(),
     };
 
@@ -338,7 +450,7 @@ export default function App() {
         <div className="hero-top">{HEADER_PARTNERSHIP}</div>
         <h1>Avaliação do hábito do tabagismo em população indígena</h1>
         <p className="subtitle">
-          App com 3 instrumentos: uso de tabaco, Fagerström e módulo cultural.
+          App com 4 instrumentos: uso de tabaco, Fagerström, módulo cultural e AUDIT.
         </p>
       </header>
 
@@ -404,7 +516,9 @@ export default function App() {
           <input
             type="date"
             value={form.participante.data}
-            onChange={(e) => updateNested("participante", "data", e.target.value)}
+            onChange={(e) =>
+              updateNested("participante", "data", e.target.value)
+            }
           />
           <input
             placeholder="Idioma"
@@ -434,6 +548,12 @@ export default function App() {
           onClick={() => setTab("cultural")}
         >
           Instrumento 3
+        </button>
+        <button
+          className={tab === "audit" ? "active" : ""}
+          onClick={() => setTab("audit")}
+        >
+          Instrumento 4
         </button>
       </div>
 
@@ -738,7 +858,7 @@ export default function App() {
 
           <h3>Finalidade atribuída</h3>
           <div className="checks">
-            {["ritual", "social", "alívio", "dependência", "costume"].map(
+            {["ritual", "social", "alívio", "dependencia", "costume"].map(
               (item) => (
                 <label key={item}>
                   <input
@@ -790,6 +910,84 @@ export default function App() {
         </div>
       )}
 
+      {tab === "audit" && (
+        <div className="card">
+          <h2>AUDIT – Triagem do consumo de bebidas alcoólicas</h2>
+
+          <div className="audit-grid">
+            <AuditQuestion
+              title="1. Com que frequência você consome bebidas alcoólicas?"
+              value={form.audit.q1}
+              onChange={(e) => updateNested("audit", "q1", e.target.value)}
+              options={AUDIT_Q1_OPTIONS}
+            />
+
+            <AuditQuestion
+              title="2. Quantas doses alcoólicas você consome tipicamente ao beber?"
+              value={form.audit.q2}
+              onChange={(e) => updateNested("audit", "q2", e.target.value)}
+              options={AUDIT_Q2_OPTIONS}
+            />
+
+            <AuditQuestion
+              title="3. Com que frequência você consome seis ou mais doses em uma ocasião?"
+              value={form.audit.q3}
+              onChange={(e) => updateNested("audit", "q3", e.target.value)}
+              options={AUDIT_Q3_OPTIONS}
+            />
+
+            <AuditQuestion
+              title="4. Com que frequência, durante o último ano, você achou que não conseguiria parar de beber depois de começar?"
+              value={form.audit.q4}
+              onChange={(e) => updateNested("audit", "q4", e.target.value)}
+              options={AUDIT_Q4_TO_Q8_OPTIONS}
+            />
+
+            <AuditQuestion
+              title="5. Com que frequência, durante o último ano, você não conseguiu fazer o que era esperado por causa da bebida?"
+              value={form.audit.q5}
+              onChange={(e) => updateNested("audit", "q5", e.target.value)}
+              options={AUDIT_Q4_TO_Q8_OPTIONS}
+            />
+
+            <AuditQuestion
+              title="6. Com que frequência, durante o último ano, você precisou beber pela manhã para se sentir melhor após ter bebido muito?"
+              value={form.audit.q6}
+              onChange={(e) => updateNested("audit", "q6", e.target.value)}
+              options={AUDIT_Q4_TO_Q8_OPTIONS}
+            />
+
+            <AuditQuestion
+              title="7. Com que frequência, durante o último ano, você sentiu culpa ou remorso após beber?"
+              value={form.audit.q7}
+              onChange={(e) => updateNested("audit", "q7", e.target.value)}
+              options={AUDIT_Q4_TO_Q8_OPTIONS}
+            />
+
+            <AuditQuestion
+              title="8. Com que frequência, durante o último ano, você não conseguiu lembrar do que aconteceu na noite anterior por causa da bebida?"
+              value={form.audit.q8}
+              onChange={(e) => updateNested("audit", "q8", e.target.value)}
+              options={AUDIT_Q4_TO_Q8_OPTIONS}
+            />
+
+            <AuditQuestion
+              title="9. Você ou outra pessoa já se machucou em consequência do seu consumo de álcool?"
+              value={form.audit.q9}
+              onChange={(e) => updateNested("audit", "q9", e.target.value)}
+              options={AUDIT_Q9_Q10_OPTIONS}
+            />
+
+            <AuditQuestion
+              title="10. Algum parente, amigo ou profissional de saúde já se preocupou com seu modo de beber ou sugeriu que você parasse?"
+              value={form.audit.q10}
+              onChange={(e) => updateNested("audit", "q10", e.target.value)}
+              options={AUDIT_Q9_Q10_OPTIONS}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="card result">
         <h2>Resumo do caso atual</h2>
 
@@ -806,8 +1004,23 @@ export default function App() {
           {classifyCultural(culturalScore)}
         </p>
         <p>
+          <strong>Instrumento 4 (AUDIT):</strong> {auditScore} pontos —{" "}
+          {classifyAUDIT(auditScore)}
+        </p>
+        <p>
           <strong>Prioridade final:</strong> {prioridade}
         </p>
+
+        <div className="chart-box">
+          <div className="chart-title">Nível de dependência geral</div>
+          <div className="chart-track">
+            <div
+              className={`chart-fill ${getDependenciaBarClass(total)}`}
+              style={{ width: getDependenciaBarWidth(total) }}
+            />
+          </div>
+          <div className="chart-label">{classifyDependenciaGeral(total)}</div>
+        </div>
 
         {mensagemEnvio && <div className="status-envio">{mensagemEnvio}</div>}
 
@@ -841,6 +1054,7 @@ export default function App() {
                   <th>Município</th>
                   <th>Estado</th>
                   <th>Uso atual</th>
+                  <th>AUDIT</th>
                   <th>Score total</th>
                   <th>Prioridade</th>
                   <th>Ação</th>
@@ -855,6 +1069,7 @@ export default function App() {
                     <td>{caso.municipio}</td>
                     <td>{caso.estado}</td>
                     <td>{caso.usoAtual}</td>
+                    <td>{caso.classificacaoAUDIT}</td>
                     <td>{caso.scoreTotal}</td>
                     <td>{caso.prioridadeFinal}</td>
                     <td>
