@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import "./index.css";
+import logo from "./assets/logo.png";
 
 const HEADER_PARTNERSHIP =
-  "Parceria PET Saúde Digital Unifal e UFAM / UNESP SJC Odontologia / LABODIGIT UFPB";
+  "Ybytu Livre • PET Saúde Digital Unifal e UFAM • UNESP SJC Odontologia • LABODIGIT UFPB";
 
 const STORAGE_KEY = "app_tabagismo_casos_v6";
 
 const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxoT_1U2HJX6dQDXOFCYpVyulxvR_AjHGEEo08eqB5EdMt1k4Irv1_2vWD0wma8Ajpf/exec";
+  "https://script.google.com/macros/s/AKfycbyyKlYxY78A5IaOOt_ceWc1yHwsZM0HRlHeF6RiQQgg-Z_eypPpA25EZqhKjC_kPF2geA/exec";
 
 const PRODUTOS_TABACO = [
   "cigarro industrializado",
@@ -466,11 +467,19 @@ export default function App() {
   return (
     <div className="container">
       <header className="hero">
-        <div className="hero-top">{HEADER_PARTNERSHIP}</div>
-        <h1>Avaliação do hábito do tabagismo em população indígena</h1>
-        <p className="subtitle">
-          App com questionário de uso, Fagerström, módulo cultural e AUDIT.
-        </p>
+        <div className="hero-brand">
+          <img
+            src={logo}
+            alt="Logo Ybytu Livre"
+            className="hero-logo"
+            style={{ width: "155px" }}
+          />
+          <div className="hero-text">
+            <div className="hero-top">{HEADER_PARTNERSHIP}</div>
+            <h1>Ybytu Livre</h1>
+            <p className="subtitle">Apoio para parar de fumar</p>
+          </div>
+        </div>
       </header>
 
       <div className="card">
@@ -481,7 +490,7 @@ export default function App() {
 
         <div className="grid">
           <input
-            placeholder="Identificação"
+            placeholder="Nome do usuário"
             value={form.participante.identificacao}
             onChange={(e) =>
               updateNested("participante", "identificacao", e.target.value)
@@ -526,6 +535,9 @@ export default function App() {
           />
           <input
             type="date"
+            placeholder="Data de entrevista"
+            aria-label="Data de entrevista"
+            title="Data de entrevista"
             value={form.participante.data}
             onChange={(e) => updateNested("participante", "data", e.target.value)}
           />
@@ -1287,7 +1299,7 @@ export default function App() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Identificação</th>
+                  <th>Nome do usuário</th>
                   <th>Residência</th>
                   <th>Aldeia</th>
                   <th>Município</th>
