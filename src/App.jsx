@@ -567,7 +567,16 @@ export default function App() {
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         body: formData,
+        mode: "no-cors",
       });
+
+      if (response.type === "opaque") {
+        setMensagemEnvio(
+          "Dados enviados para o Google Sheets. Se quiser, confirme a chegada diretamente na planilha."
+        );
+        alert("Envio realizado. Confira a planilha para confirmar o recebimento.");
+        return;
+      }
 
       const texto = await response.text();
       let json = {};
