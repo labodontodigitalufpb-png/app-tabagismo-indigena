@@ -1,16 +1,47 @@
-# React + Vite
+# Ybytu Livre
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicativo React + Capacitor para coleta de dados relacionados ao uso de tabaco em contexto indigena, com armazenamento local no dispositivo e envio posterior em lote para Google Sheets via Google Apps Script.
 
-Currently, two official plugins are available:
+## Executar o app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+## Configuracao do Apps Script
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+O endpoint de envio nao fica mais fixo no codigo. Configure a URL do web app com um arquivo `.env.local`:
 
-## Expanding the ESLint configuration
+```env
+VITE_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/SEU_DEPLOY_ID/exec
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Um exemplo base esta em [.env.example](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/.env.example).
+
+## Deploy no Netlify
+
+O projeto ja esta preparado para deploy web no Netlify com [netlify.toml](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/netlify.toml).
+
+Configuracao esperada:
+
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Node: `20`
+
+Antes de publicar, configure no painel do Netlify a variavel de ambiente:
+
+```env
+VITE_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/SEU_DEPLOY_ID/exec
+```
+
+Depois de salvar a variavel, rode um novo deploy no Netlify para embutir a URL no frontend.
+
+## Backend do Google Sheets
+
+O backend pronto para publicar na conta do laboratorio esta em [apps-script/README.md](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/apps-script/README.md).
+
+Arquivos principais:
+
+- [apps-script/Code.gs](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/apps-script/Code.gs)
+- [apps-script/appsscript.json](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/apps-script/appsscript.json)

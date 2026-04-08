@@ -7,8 +7,9 @@ const HEADER_PARTNERSHIP =
 
 const STORAGE_KEY = "app_tabagismo_casos_v6";
 
-const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzOygrv3Df4UCykmRRPfOyzqDD8jdzzc7e4vsamzORCvsf-tZiP2iZwVld1vebKSpgAsg/exec";
+const GOOGLE_SCRIPT_URL = (import.meta.env.VITE_GOOGLE_SCRIPT_URL || "").trim();
+const GOOGLE_SCRIPT_NOT_CONFIGURED_MESSAGE =
+  "Configure a URL do Apps Script do laboratório para habilitar o envio ao Google Sheets.";
 
 const PRODUTOS_TABACO = [
   "cigarro industrializado",
@@ -326,6 +327,7 @@ export default function App() {
   const [casos, setCasos] = useState(loadCasesFromStorage);
   const [enviandoSheets, setEnviandoSheets] = useState(false);
   const [mensagemEnvio, setMensagemEnvio] = useState("");
+  const googleScriptConfigured = GOOGLE_SCRIPT_URL.length > 0;
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(casos));
@@ -396,6 +398,12 @@ export default function App() {
   };
 
   const enviarParaGoogleSheets = async () => {
+    if (!googleScriptConfigured) {
+      setMensagemEnvio(GOOGLE_SCRIPT_NOT_CONFIGURED_MESSAGE);
+      alert("Defina a URL do Apps Script do laboratório antes de enviar.");
+      return;
+    }
+
     if (casos.length === 0) {
       alert("Nenhum caso foi salvo ainda.");
       return;
@@ -442,8 +450,12 @@ export default function App() {
       alert("Dados enviados com sucesso para o Google Sheets.");
     } catch (error) {
       console.error("Erro ao enviar para Google Sheets:", error);
-      setMensagemEnvio("Não foi possível enviar os dados ao Google Sheets.");
-      alert("Erro ao enviar para o Google Sheets.");
+      const erroMensagem =
+        error instanceof Error && error.message
+          ? error.message
+          : "Não foi possível enviar os dados ao Google Sheets.";
+      setMensagemEnvio(erroMensagem);
+      alert(erroMensagem);
     } finally {
       setEnviandoSheets(false);
     }
@@ -1269,6 +1281,11 @@ export default function App() {
         </div>
 
         {mensagemEnvio && <div className="status-envio">{mensagemEnvio}</div>}
+        {!googleScriptConfigured && (
+          <div className="status-envio status-envio-warning">
+            {GOOGLE_SCRIPT_NOT_CONFIGURED_MESSAGE}
+          </div>
+        )}
 
         <div className="buttons">
           <button onClick={salvarCaso}>Salvar caso</button>

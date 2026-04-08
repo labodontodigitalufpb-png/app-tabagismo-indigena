@@ -1,0 +1,16 @@
+{
+  "name": "Ybytu Livre",
+  "short_name": "Ybytu Livre",
+  "description": "Coleta de dados sobre uso de tabaco em contexto indigena.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/logo-app.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

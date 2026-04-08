@@ -401,6 +401,11 @@ textarea {
   color: var(--text-h);
 }
 
+.status-envio-warning {
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
 /* Botões */
 .buttons {
   display: flex;
