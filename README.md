@@ -1,47 +1,61 @@
-# Ybytu Livre
+# Tabacontrole
 
-Aplicativo React + Capacitor para coleta de dados relacionados ao uso de tabaco em contexto indigena, com armazenamento local no dispositivo e envio posterior em lote para Google Sheets via Google Apps Script.
+Aplicacao React + Vite para registro de casos e envio dos dados para Google Sheets.
 
-## Executar o app
+## Rodando localmente
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Configuracao do Apps Script
+## Integracao com Google Sheets
 
-O endpoint de envio nao fica mais fixo no codigo. Configure a URL do web app com um arquivo `.env.local`:
+O app ja possui um botao `Enviar todos para Google Sheets` e faz um `POST` para uma URL de Google Apps Script.
 
-```env
-VITE_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/SEU_DEPLOY_ID/exec
-```
+### 1. Configurar a URL no front-end
 
-Um exemplo base esta em [.env.example](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/.env.example).
-
-## Deploy no Netlify
-
-O projeto ja esta preparado para deploy web no Netlify com [netlify.toml](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/netlify.toml).
-
-Configuracao esperada:
-
-- Build command: `npm run build`
-- Publish directory: `dist`
-- Node: `20`
-
-Antes de publicar, configure no painel do Netlify a variavel de ambiente:
+Crie um arquivo `.env` na raiz do projeto com:
 
 ```env
-VITE_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/SEU_DEPLOY_ID/exec
+VITE_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/SEU_DEPLOYMENT_ID/exec
 ```
 
-Depois de salvar a variavel, rode um novo deploy no Netlify para embutir a URL no frontend.
+Existe um exemplo em [.env.example](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo geral/tabaco/.env.example).
 
-## Backend do Google Sheets
+### 2. Criar a planilha
 
-O backend pronto para publicar na conta do laboratorio esta em [apps-script/README.md](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/apps-script/README.md).
+No Google Sheets, crie uma planilha e uma aba chamada, por exemplo, `Respostas`.
 
-Arquivos principais:
+### 3. Criar o Apps Script
 
-- [apps-script/Code.gs](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/apps-script/Code.gs)
-- [apps-script/appsscript.json](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/apps-script/appsscript.json)
+No menu da planilha:
+
+`Extensoes` -> `Apps Script`
+
+Cole o codigo de [Code.gs](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo geral/tabaco/google-apps-script/Code.gs) no editor do Apps Script.
+
+### 4. Publicar
+
+No Apps Script:
+
+`Implantar` -> `Nova implantacao` -> `Aplicativo da Web`
+
+Use algo como:
+
+- Executar como: `Voce`
+- Quem tem acesso: `Qualquer pessoa`
+
+Depois copie a URL `/exec` e coloque no `.env`.
+
+O projeto ja vem com um `.env` criado usando a URL que estava configurada anteriormente no app. Se voce publicar uma nova implantacao no seu Google Sheets, substitua esse valor.
+
+### 5. Enviar os dados
+
+1. Salve um ou mais casos no app.
+2. Clique em `Enviar todos para Google Sheets`.
+3. Verifique se as linhas apareceram na planilha.
+
+## Observacao
+
+Os casos continuam sendo guardados localmente no navegador via `localStorage` ate serem removidos manualmente.

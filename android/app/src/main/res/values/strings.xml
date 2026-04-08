@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Ybytu Livre</string>
-    <string name="title_activity_main">Ybytu Livre</string>
-    <string name="package_name">br.ufpb.ybytulivre</string>
-    <string name="custom_url_scheme">br.ufpb.ybytulivre</string>
+    <string name="app_name">Tabacontrole</string>
+    <string name="title_activity_main">Tabacontrole</string>
+    <string name="package_name">com.tabacontrole.app</string>
+    <string name="custom_url_scheme">com.tabacontrole.app</string>
 </resources>
