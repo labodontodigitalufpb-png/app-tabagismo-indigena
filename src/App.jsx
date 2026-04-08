@@ -553,58 +553,43 @@ export default function App() {
     setMensagemEnvio("");
 
     try {
-      const formData = new FormData();
-      formData.append(
-        "payload",
-        JSON.stringify({
-          origem: "tabacontrole",
-          timestampEnvio: new Date().toISOString(),
-          quantidadeCasos: casos.length,
-          casos,
-        })
-      );
-
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: formData,
-        mode: "no-cors",
+      const payload = JSON.stringify({
+        origem: "tabacontrole",
+        timestampEnvio: new Date().toISOString(),
+        quantidadeCasos: casos.length,
+        casos,
       });
 
-      if (response.type === "opaque") {
-        setMensagemEnvio(
-          "Dados enviados para o Google Sheets. Se quiser, confirme a chegada diretamente na planilha."
-        );
-        alert("Envio realizado. Confira a planilha para confirmar o recebimento.");
-        return;
-      }
+      const iframeName = `google-sheets-submit-${Date.now()}`;
+      const iframe = document.createElement("iframe");
+      iframe.name = iframeName;
+      iframe.style.display = "none";
 
-      const texto = await response.text();
-      let json = {};
+      const formElement = document.createElement("form");
+      formElement.method = "POST";
+      formElement.action = GOOGLE_SCRIPT_URL;
+      formElement.target = iframeName;
+      formElement.style.display = "none";
 
-      try {
-        json = JSON.parse(texto);
-      } catch {
-        json = {};
-      }
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "payload";
+      input.value = payload;
 
-      if (!response.ok) {
-        throw new Error(`Erro HTTP ${response.status}`);
-      }
+      formElement.appendChild(input);
+      document.body.appendChild(iframe);
+      document.body.appendChild(formElement);
+      formElement.submit();
 
-      if (json.sucesso === false) {
-        throw new Error(json.mensagem || "Falha no envio.");
-      }
+      window.setTimeout(() => {
+        formElement.remove();
+        iframe.remove();
+      }, 4000);
 
-      const detalhesEnvio = [
-        "Dados enviados com sucesso para o Google Sheets.",
-        json.envioId ? `envioId: ${json.envioId}` : "",
-        json.planilhaId ? `planilhaId: ${json.planilhaId}` : "",
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      setMensagemEnvio(detalhesEnvio);
-      alert("Dados enviados com sucesso para o Google Sheets.");
+      setMensagemEnvio(
+        "Dados enviados para o Google Sheets. Confirme a chegada diretamente na planilha."
+      );
+      alert("Envio realizado. Confira a planilha para confirmar o recebimento.");
     } catch (error) {
       console.error("Erro ao enviar para Google Sheets:", error);
       const erroMensagem =
