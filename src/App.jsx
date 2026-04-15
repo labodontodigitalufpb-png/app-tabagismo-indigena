@@ -741,10 +741,17 @@ export default function App() {
             }
           />
           <input
-            type="date"
+            type={form.participante.data ? "date" : "text"}
+            placeholder="Data da entrevista"
             aria-label="Data de entrevista"
             title="Data de entrevista"
             value={form.participante.data}
+            onFocus={(e) => {
+              e.target.type = "date";
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) e.target.type = "text";
+            }}
             onChange={(e) => updateNested("participante", "data", e.target.value)}
           />
           <input
