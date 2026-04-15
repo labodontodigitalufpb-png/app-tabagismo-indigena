@@ -5,7 +5,7 @@ const CONFIG = {
   timezone: "America/Fortaleza",
 };
 
-const SCRIPT_SCHEMA_VERSION = "2026-04-15-case-order-v4-phone";
+const SCRIPT_SCHEMA_VERSION = "2026-04-15-case-order-v4";
 
 const CASE_KEY_ORDER = [
   "id",
@@ -106,7 +106,6 @@ const CASE_KEY_ORDER = [
 ];
 
 const CASE_HEADER_LABELS = {
-  telefone: "Telefone",
   religioes: "C1.1 Religioes/espiritualidades (multipla)",
   religioesOutro: "C1.1 Outro (texto)",
   usoTradicionalExiste: "C2.1 Existe uso tradicional/ritual/espiritual/medicinal",
@@ -142,7 +141,7 @@ const CASE_HEADER_LABELS = {
 function doGet() {
   return jsonOutput_({
     sucesso: true,
-    mensagem: "YBYTU V4 ativo",
+    mensagem: "YBYTU V3 ativo",
     schemaVersion: SCRIPT_SCHEMA_VERSION,
     spreadsheetId: CONFIG.spreadsheetId,
     casosSheetName: CONFIG.casosSheetName,
