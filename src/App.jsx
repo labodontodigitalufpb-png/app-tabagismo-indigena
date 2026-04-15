@@ -427,12 +427,28 @@ function getDependenciaBarWidth(total) {
   return `${percent}%`;
 }
 
+function normalizeCasePhone(caso) {
+  if (!caso || typeof caso !== "object") return caso;
+
+  const currentPhone = String(caso.telefone || "").trim();
+  if (currentPhone) return caso;
+
+  const identificacao = String(caso.identificacao || "").trim();
+  const digits = identificacao.replace(/\D/g, "");
+  if (digits.length < 8) return caso;
+
+  return {
+    ...caso,
+    telefone: identificacao,
+  };
+}
+
 function loadCasesFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.map(normalizeCasePhone) : [];
   } catch {
     return [];
   }
@@ -623,13 +639,15 @@ export default function App() {
 
     try {
       const formData = new FormData();
+      const casosNormalizados = casos.map(normalizeCasePhone);
+
       formData.append(
         "payload",
         JSON.stringify({
           origem: "app-tabagismo-indigena",
           timestampEnvio: new Date().toISOString(),
-          quantidadeCasos: casos.length,
-          casos,
+          quantidadeCasos: casosNormalizados.length,
+          casos: casosNormalizados,
         })
       );
 
