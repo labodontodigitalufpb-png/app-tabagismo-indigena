@@ -11,21 +11,47 @@ const GOOGLE_SCRIPT_URL = (import.meta.env.VITE_GOOGLE_SCRIPT_URL || "").trim();
 const GOOGLE_SCRIPT_NOT_CONFIGURED_MESSAGE =
   "Configure a URL do Apps Script do laboratório para habilitar o envio ao Google Sheets.";
 
-const PRODUTOS_TABACO = [
+const RELIGIOES_OPTIONS = [
+  "religião/tradição indígena da comunidade",
+  "catolicismo",
+  "religião evangélica/protestante",
+  "espiritismo",
+  "religiões de matriz africana",
+  "outra espiritualidade/religiosidade",
+  "não segue religião ou espiritualidade específica",
+  "prefere não responder",
+  "outro",
+];
+
+const CONTEXTOS_ENVOLVEM_USO = [
+  "ritual",
+  "cerimônia espiritual",
+  "cura/tratamento tradicional",
+  "uso como medicamento tradicional",
+  "benzimentos/rezas",
+  "luto/cerimônia",
+  "rodas de conversa",
+  "reuniões comunitárias",
+  "festas ou celebrações",
+  "trabalho/roça/caça/pesca",
+  "outro",
+];
+
+const PRODUTOS_SUBSTANCIAS = [
   "cigarro industrializado",
   "fumo de rolo",
-  "cigarro de palha",
+  "cigarro de palha/artesanal",
   "rapé",
   "cachimbo",
   "charuto",
   "cigarro eletrônico",
   "narguilé",
-  "tabaco ritual",
+  "tabaco ritual/tradicional",
   "outra planta para fumar",
   "outros",
 ];
 
-const CONTEXTOS_USO = [
+const CONTEXTOS_UTILIZA = [
   "ritual",
   "cotidiano",
   "social",
@@ -33,7 +59,11 @@ const CONTEXTOS_USO = [
   "festas",
   "luto/cerimônia",
   "cura/tratamento tradicional",
-  "outros",
+  "uso como medicamento tradicional",
+  "rodas de conversa",
+  "reuniões comunitárias",
+  "quando está sozinho",
+  "outro",
 ];
 
 const FINALIDADES_USO = [
@@ -44,17 +74,108 @@ const FINALIDADES_USO = [
   "costume diário",
   "pressão social",
   "tradição familiar",
-  "outros",
+  "cura/tratamento tradicional",
+  "medicamento tradicional",
+  "participação em rodas de conversa",
+  "relaxamento",
+  "outro",
 ];
 
-const FORMAS_CONSUMO = [
-  "cigarro industrializado",
-  "cigarro artesanal/de palha",
-  "cachimbo",
-  "rapé",
-  "mascado",
-  "charuto",
-  "outras",
+const BINARIO_OPTIONS = [
+  { value: "sim", label: "Sim" },
+  { value: "nao", label: "Não" },
+  { value: "nao_sabe_informar", label: "Não sabe informar" },
+];
+
+const BINARIO_COM_PREFERE_OPTIONS = [
+  { value: "sim", label: "Sim" },
+  { value: "nao", label: "Não" },
+  { value: "nao_sabe_informar", label: "Não sabe informar" },
+  { value: "prefere_nao_responder", label: "Prefere não responder" },
+];
+
+const QUEM_INFLUENCIOU_OPTIONS = [
+  { value: "familia", label: "Família" },
+  { value: "amigos", label: "Amigos" },
+  { value: "lideranca_indigena", label: "Liderança indígena" },
+  { value: "paje_rezador_curador", label: "Pajé/rezador/curador tradicional" },
+  { value: "comunidade", label: "Comunidade" },
+  { value: "comercio_propaganda", label: "Comércio/propaganda" },
+  { value: "internet_redes_sociais", label: "Internet/redes sociais" },
+  { value: "ninguem_influenciou", label: "Ninguém influenciou" },
+  { value: "outro", label: "Outro" },
+];
+
+const INICIO_CONTEXTO_RITUAL_OPTIONS = [
+  { value: "sim", label: "Sim" },
+  { value: "nao", label: "Não" },
+  { value: "parcialmente", label: "Parcialmente" },
+  { value: "nao_sabe_informar", label: "Não sabe informar" },
+];
+
+const IDADE_PRIMEIRA_PARTICIPACAO_OPTIONS = [
+  { value: "nunca_participei", label: "Nunca participei" },
+  { value: "menos_de_10", label: "Menos de 10 anos" },
+  { value: "10_a_14", label: "10 a 14 anos" },
+  { value: "15_a_17", label: "15 a 17 anos" },
+  { value: "18_a_24", label: "18 a 24 anos" },
+  { value: "25_ou_mais", label: "25 anos ou mais" },
+  { value: "nao_sabe_informar", label: "Não sabe informar" },
+  { value: "prefere_nao_responder", label: "Prefere não responder" },
+];
+
+const IDADE_INICIO_USO_RITUAL_OPTIONS = [
+  { value: "nunca_usei", label: "Nunca usei" },
+  { value: "menos_de_10", label: "Menos de 10 anos" },
+  { value: "10_a_14", label: "10 a 14 anos" },
+  { value: "15_a_17", label: "15 a 17 anos" },
+  { value: "18_a_24", label: "18 a 24 anos" },
+  { value: "25_ou_mais", label: "25 anos ou mais" },
+  { value: "nao_sabe_informar", label: "Não sabe informar" },
+  { value: "prefere_nao_responder", label: "Prefere não responder" },
+];
+
+const PERCEPCAO_COMUNIDADE_OPTIONS = [
+  { value: "pratica_tradicional_respeitada", label: "Como prática tradicional respeitada" },
+  { value: "habito_cotidiano_comum", label: "Como hábito cotidiano comum" },
+  { value: "problema_de_saude", label: "Como problema de saúde" },
+  { value: "pratica_social_convivencia", label: "Como prática social/de convivência" },
+  { value: "restrito_a_pessoas_ou_momentos", label: "Como algo restrito a determinadas pessoas ou momentos" },
+  { value: "ha_opinioes_diferentes", label: "Há opiniões diferentes na comunidade" },
+  { value: "nao_sabe_informar", label: "Não sabe informar" },
+  { value: "outro", label: "Outro" },
+];
+
+const PRODUTO_PRINCIPAL_ORIGEM_OPTIONS = [
+  { value: "produzido_preparado_na_comunidade", label: "Produzido/preparado na comunidade" },
+  { value: "comprado_em_comercio", label: "Comprado em comércio" },
+  { value: "recebido_de_familiares_ou_comunidade", label: "Recebido de familiares ou membros da comunidade" },
+  { value: "recebido_em_contexto_ritual_tradicional", label: "Recebido em contexto ritual/tradicional" },
+  { value: "nao_sabe_informar", label: "Não sabe informar" },
+  { value: "outro", label: "Outro" },
+];
+
+const FORMA_PRINCIPAL_CONSUMO_OPTIONS = [
+  { value: "cigarro_industrializado", label: "Cigarro industrializado" },
+  { value: "cigarro_artesanal_palha", label: "Cigarro artesanal/de palha" },
+  { value: "cachimbo", label: "Cachimbo" },
+  { value: "rape", label: "Rapé" },
+  { value: "mascado", label: "Mascado" },
+  { value: "charuto", label: "Charuto" },
+  { value: "cigarro_eletronico", label: "Cigarro eletrônico" },
+  { value: "narguile", label: "Narguilé" },
+  { value: "outra", label: "Outra" },
+];
+
+const USO_OCORRE_FREQUENTEMENTE_OPTIONS = [
+  { value: "apenas_rituais_tradicoes", label: "Apenas em rituais/tradições" },
+  { value: "rituais_e_cotidiano", label: "Em rituais e também no cotidiano" },
+  { value: "principalmente_cotidiano", label: "Principalmente no cotidiano" },
+  { value: "principalmente_social", label: "Principalmente em situações sociais" },
+  { value: "principalmente_rodas_conversa", label: "Principalmente em rodas de conversa" },
+  { value: "principalmente_cura_tratamento_tradicional", label: "Principalmente para cura/tratamento tradicional" },
+  { value: "principalmente_vontade_necessidade", label: "Principalmente quando sente vontade/necessidade" },
+  { value: "nao_sabe_informar", label: "Não sabe informar" },
 ];
 
 const AUDIT_Q1_OPTIONS = [
@@ -145,23 +266,36 @@ const initialState = {
     tentativasSemSucesso: "",
   },
   cultural: {
-    usoTradicionalExiste: "",
-    tiposRituais: "",
-    diferencaTradicionalComercial: "",
-    contextoUso: [],
-    contextoUsoOutros: "",
+    religioes: [],
+    religioesOutro: "",
+    usoTradicionalExiste: [],
+    participouRitualTabaco: [],
+    contextosEnvolvemUso: [],
+    contextosEnvolvemUsoOutro: "",
+    quemInfluenciou: [],
+    quemInfluenciouOutro: "",
+    inicioEmContextoRitualTradicional: [],
+    houveEscolha: [],
+    idadePrimeiraParticipacaoRitual: [],
+    idadeInicioUsoRitual: [],
+    percepcaoComunidade: [],
+    percepcaoComunidadeOutro: "",
+    diferencaTradicionalComercial: [],
+    diferencaPrincipal: "",
+    produtoSubstanciaUtilizada: [],
+    produtoSubstanciaUtilizadaOutros: "",
+    produtoPrincipalOrigem: [],
+    produtoPrincipalOrigemOutro: "",
+    contextosUtiliza: [],
+    contextosUtilizaOutro: "",
     finalidadeUso: [],
-    finalidadeUsoOutros: "",
-    quemInfluenciou: "",
-    inicioEmContextoRitual: "",
-    houveEscolha: "",
-    percepcaoComunidade: "",
-    produtoLocalDefinicao: "",
-    produtoLocal: [],
-    produtoLocalOutros: "",
-    formaConsumo: [],
-    formaConsumoOutras: "",
-    comentarios: "",
+    finalidadeUsoOutro: "",
+    formaPrincipalConsumo: [],
+    formaPrincipalConsumoOutra: "",
+    usoOcorreMaisFrequentemente: [],
+    usoMedicamentoCuraPessoal: [],
+    usoRodasConversaPessoal: [],
+    usoRitualBebidasAlcoolicas: [],
   },
   audit: {
     q1: "",
@@ -244,10 +378,11 @@ function classifyUso(score) {
 function scoreCultural(cultural) {
   let score = 0;
 
-  if (cultural.usoTradicionalExiste === "sim") score += 1;
-  if (cultural.diferencaTradicionalComercial === "nao") score += 2;
-  if (cultural.contextoUso.includes("ritual")) score += 1;
-  if (cultural.contextoUso.includes("cotidiano")) score += 2;
+  if (cultural.usoTradicionalExiste.includes("sim")) score += 1;
+  if (cultural.participouRitualTabaco.includes("sim")) score += 1;
+  if (cultural.diferencaTradicionalComercial.includes("nao")) score += 2;
+  if (cultural.contextosUtiliza.includes("ritual")) score += 1;
+  if (cultural.contextosUtiliza.includes("cotidiano")) score += 2;
   if (cultural.finalidadeUso.includes("alívio da vontade de fumar")) score += 2;
   if (cultural.finalidadeUso.includes("alívio emocional")) score += 1;
   if (cultural.finalidadeUso.includes("socialização")) score += 1;
@@ -321,6 +456,34 @@ function SectionHint({ children }) {
   return <p className="section-hint">{children}</p>;
 }
 
+function MultiChoiceField({ title, options, values, onToggle, singleChoice = false }) {
+  const handleChange = (value) => {
+    if (singleChoice) {
+      onToggle(values.includes(value) ? [] : [value]);
+      return;
+    }
+    onToggle(toggleArray(values, value));
+  };
+
+  return (
+    <div className="multi-group full">
+      <p>{title}</p>
+      <div className="checks">
+        {options.map((option) => (
+          <label key={`${title}-${option.value}`}>
+            <input
+              type="checkbox"
+              checked={values.includes(option.value)}
+              onChange={() => handleChange(option.value)}
+            />
+            {option.label}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState("uso");
   const [form, setForm] = useState(initialState);
@@ -343,6 +506,24 @@ export default function App() {
     }));
   };
 
+  const updateCulturalChoice = (key, values, clearField, clearOnValues = []) => {
+    setForm((prev) => {
+      const nextCultural = {
+        ...prev.cultural,
+        [key]: values,
+      };
+
+      if (clearField && clearOnValues.some((value) => values.includes(value))) {
+        nextCultural[clearField] = "";
+      }
+
+      return {
+        ...prev,
+        cultural: nextCultural,
+      };
+    });
+  };
+
   const fagerScore = useMemo(
     () => scoreFagerstrom(form.fagerstrom),
     [form.fagerstrom]
@@ -361,6 +542,13 @@ export default function App() {
       : "Alta prioridade para abordagem";
 
   const salvarCaso = () => {
+    const culturalFlat = Object.fromEntries(
+      Object.entries(form.cultural).map(([key, value]) => [
+        key,
+        Array.isArray(value) ? value.join(", ") : value,
+      ])
+    );
+
     const novoCaso = {
       id: Date.now(),
       ...form.participante,
@@ -368,11 +556,7 @@ export default function App() {
       ...form.fagerstrom,
       ...form.audit,
       produtoPrincipal: form.uso.produtoPrincipal.join(", "),
-      contextoUso: form.cultural.contextoUso.join(", "),
-      finalidadeUso: form.cultural.finalidadeUso.join(", "),
-      produtoLocal: form.cultural.produtoLocal.join(", "),
-      formaConsumo: form.cultural.formaConsumo.join(", "),
-      ...form.cultural,
+      ...culturalFlat,
       scoreUso: usoScore,
       classificacaoUso: classifyUso(usoScore),
       scoreFagerstrom: fagerScore,
@@ -446,7 +630,15 @@ export default function App() {
         throw new Error(json.mensagem || "Falha no envio.");
       }
 
-      setMensagemEnvio("Dados enviados com sucesso para o Google Sheets.");
+      const detalhesEnvio = [
+        "Dados enviados com sucesso para o Google Sheets.",
+        json.envioId ? `envioId: ${json.envioId}` : "",
+        json.planilhaId ? `planilhaId: ${json.planilhaId}` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      setMensagemEnvio(detalhesEnvio);
       alert("Dados enviados com sucesso para o Google Sheets.");
     } catch (error) {
       console.error("Erro ao enviar para Google Sheets:", error);
@@ -782,7 +974,7 @@ export default function App() {
             <div className="multi-group full">
               <p>Produto principal (pode marcar mais de um)</p>
               <div className="checks">
-                {PRODUTOS_TABACO.map((item) => (
+              {PRODUTOS_SUBSTANCIAS.map((item) => (
                   <label key={item}>
                     <input
                       type="checkbox"
@@ -948,243 +1140,357 @@ export default function App() {
       )}
 
       {tab === "cultural" && (
-        <div className="card">
+        <div className="card cultural-card">
           <h2>Módulo cultural</h2>
           <SectionHint>
-            Diferencia uso ritual, cotidiano e significados culturais.
+            Diferencia uso ritual/tradicional, uso cotidiano, uso comercial e significados culturais.
           </SectionHint>
 
-          <div className="grid">
-            <select
-              value={form.cultural.usoTradicionalExiste}
-              onChange={(e) =>
-                updateNested("cultural", "usoTradicionalExiste", e.target.value)
-              }
-            >
-              <option value="">Existe uso tradicional/ritual?</option>
-              <option value="sim">Sim</option>
-              <option value="nao">Não</option>
-              <option value="nao_sei">Não sei</option>
-            </select>
+          <div className="cultural-layout">
+            <section className="cultural-section">
+              <h3>1. Religião, espiritualidade e crenças</h3>
+              <MultiChoiceField
+                title="1.1 Qual(is) religião(ões), espiritualidade(s) ou sistema(s) de crenças você segue ou pratica?"
+                options={RELIGIOES_OPTIONS.map((item) => ({ value: item, label: item }))}
+                values={form.cultural.religioes}
+                onToggle={(nextValues) =>
+                  updateCulturalChoice(
+                    "religioes",
+                    nextValues,
+                    "religioesOutro",
+                    ["prefere não responder"]
+                  )
+                }
+              />
 
-            <input
-              placeholder="Quais rituais/cerimônias envolvem o uso?"
-              value={form.cultural.tiposRituais}
-              onChange={(e) =>
-                updateNested("cultural", "tiposRituais", e.target.value)
-              }
-            />
-
-            <select
-              value={form.cultural.diferencaTradicionalComercial}
-              onChange={(e) =>
-                updateNested(
-                  "cultural",
-                  "diferencaTradicionalComercial",
-                  e.target.value
-                )
-              }
-            >
-              <option value="">Diferencia uso ritual/tradicional do uso comercial?</option>
-              <option value="sim">Sim</option>
-              <option value="nao">Não</option>
-              <option value="parcial">Parcialmente</option>
-            </select>
-
-            <input
-              placeholder="Quem influenciou o início?"
-              value={form.cultural.quemInfluenciou}
-              onChange={(e) =>
-                updateNested("cultural", "quemInfluenciou", e.target.value)
-              }
-            />
-
-            <select
-              value={form.cultural.inicioEmContextoRitual}
-              onChange={(e) =>
-                updateNested("cultural", "inicioEmContextoRitual", e.target.value)
-              }
-            >
-              <option value="">O início ocorreu em contexto ritual?</option>
-              <option value="sim">Sim</option>
-              <option value="nao">Não</option>
-            </select>
-
-            <select
-              value={form.cultural.houveEscolha}
-              onChange={(e) =>
-                updateNested("cultural", "houveEscolha", e.target.value)
-              }
-            >
-              <option value="">Houve possibilidade real de escolha?</option>
-              <option value="sim">Sim</option>
-              <option value="nao">Não</option>
-              <option value="parcial">Parcialmente</option>
-            </select>
-
-            <select
-              value={form.cultural.percepcaoComunidade}
-              onChange={(e) =>
-                updateNested("cultural", "percepcaoComunidade", e.target.value)
-              }
-            >
-              <option value="">Como a comunidade percebe esse uso?</option>
-              <option value="aceito_em_rituais">Aceito em rituais específicos</option>
-              <option value="aceito_no_cotidiano">Aceito também no cotidiano</option>
-              <option value="desencorajado">Desencorajado pela comunidade</option>
-              <option value="varia_por_situacao">Varia conforme situação/grupo</option>
-            </select>
-
-            <select
-              value={form.cultural.produtoLocalDefinicao}
-              onChange={(e) =>
-                updateNested("cultural", "produtoLocalDefinicao", e.target.value)
-              }
-            >
-              <option value="">“Produto local” refere-se a:</option>
-              <option value="consumido_pelo_participante">
-                Produto consumido pelo participante
-              </option>
-              <option value="disponivel_na_comunidade">
-                Produto disponível na comunidade
-              </option>
-              <option value="ambos">Ambos</option>
-            </select>
-          </div>
-
-          <div className="multi-group full">
-            <p>Produto local mencionado</p>
-            <div className="checks">
-              {PRODUTOS_TABACO.map((item) => (
-                <label key={item}>
-                  <input
-                    type="checkbox"
-                    checked={form.cultural.produtoLocal.includes(item)}
-                    onChange={() =>
-                      updateNested(
-                        "cultural",
-                        "produtoLocal",
-                        toggleArray(form.cultural.produtoLocal, item)
-                      )
-                    }
-                  />
-                  {item}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {form.cultural.produtoLocal.includes("outros") && (
-            <input
-              className="full"
-              placeholder="Outro produto local (especificar)"
-              value={form.cultural.produtoLocalOutros}
-              onChange={(e) =>
-                updateNested("cultural", "produtoLocalOutros", e.target.value)
-              }
-            />
-          )}
-
-          <h3>Contextos de uso</h3>
-          <div className="checks">
-            {CONTEXTOS_USO.map((item) => (
-              <label key={item}>
+              {form.cultural.religioes.includes("outro") && (
                 <input
-                  type="checkbox"
-                  checked={form.cultural.contextoUso.includes(item)}
-                  onChange={() =>
-                    updateNested(
-                      "cultural",
-                      "contextoUso",
-                      toggleArray(form.cultural.contextoUso, item)
-                    )
+                  className="full"
+                  placeholder="1.1 Outro (especificar)"
+                  value={form.cultural.religioesOutro}
+                  onChange={(e) =>
+                    updateNested("cultural", "religioesOutro", e.target.value)
                   }
                 />
-                {item}
-              </label>
-            ))}
-          </div>
+              )}
+            </section>
 
-          {form.cultural.contextoUso.includes("outros") && (
-            <input
-              className="full mt"
-              placeholder="Outro contexto de uso"
-              value={form.cultural.contextoUsoOutros}
-              onChange={(e) =>
-                updateNested("cultural", "contextoUsoOutros", e.target.value)
-              }
-            />
-          )}
+            <section className="cultural-section">
+              <h3>2. Uso tradicional, ritual ou medicinal</h3>
+              <MultiChoiceField
+                title="2.1 Na sua comunidade existe uso tradicional, ritual, espiritual ou medicinal do tabaco?"
+                options={BINARIO_OPTIONS}
+                values={form.cultural.usoTradicionalExiste}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "usoTradicionalExiste", nextValues)
+                }
+              />
 
-          <h3>Finalidade atribuída ao uso</h3>
-          <div className="checks">
-            {FINALIDADES_USO.map((item) => (
-              <label key={item}>
+              <MultiChoiceField
+                title="2.2 Você já participou de algum ritual, cerimônia ou prática tradicional que envolvesse tabaco?"
+                options={[
+                  { value: "sim", label: "Sim" },
+                  { value: "nao", label: "Não" },
+                  { value: "prefere_nao_responder", label: "Prefere não responder" },
+                ]}
+                values={form.cultural.participouRitualTabaco}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "participouRitualTabaco", nextValues)
+                }
+              />
+
+              <MultiChoiceField
+                title="2.3 Quais contextos envolvem esse uso?"
+                options={CONTEXTOS_ENVOLVEM_USO.map((item) => ({ value: item, label: item }))}
+                values={form.cultural.contextosEnvolvemUso}
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "contextosEnvolvemUso", nextValues)
+                }
+              />
+
+              {form.cultural.contextosEnvolvemUso.includes("outro") && (
                 <input
-                  type="checkbox"
-                  checked={form.cultural.finalidadeUso.includes(item)}
-                  onChange={() =>
-                    updateNested(
-                      "cultural",
-                      "finalidadeUso",
-                      toggleArray(form.cultural.finalidadeUso, item)
-                    )
+                  className="full"
+                  placeholder="2.3 Outro contexto (especificar)"
+                  value={form.cultural.contextosEnvolvemUsoOutro}
+                  onChange={(e) =>
+                    updateNested("cultural", "contextosEnvolvemUsoOutro", e.target.value)
                   }
                 />
-                {item}
-              </label>
-            ))}
-          </div>
+              )}
+            </section>
 
-          {form.cultural.finalidadeUso.includes("outros") && (
-            <input
-              className="full mt"
-              placeholder="Outra finalidade"
-              value={form.cultural.finalidadeUsoOutros}
-              onChange={(e) =>
-                updateNested("cultural", "finalidadeUsoOutros", e.target.value)
-              }
-            />
-          )}
+            <section className="cultural-section">
+              <h3>3. Início do uso</h3>
+              <MultiChoiceField
+                title="3.1 Quem mais influenciou o início do seu uso?"
+                options={QUEM_INFLUENCIOU_OPTIONS}
+                values={form.cultural.quemInfluenciou}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "quemInfluenciou", nextValues)
+                }
+              />
 
-          <h3>Forma de consumo</h3>
-          <div className="checks">
-            {FORMAS_CONSUMO.map((item) => (
-              <label key={item}>
+              {form.cultural.quemInfluenciou.includes("outro") && (
                 <input
-                  type="checkbox"
-                  checked={form.cultural.formaConsumo.includes(item)}
-                  onChange={() =>
-                    updateNested(
-                      "cultural",
-                      "formaConsumo",
-                      toggleArray(form.cultural.formaConsumo, item)
-                    )
+                  className="full"
+                  placeholder="3.1 Outro (especificar)"
+                  value={form.cultural.quemInfluenciouOutro}
+                  onChange={(e) =>
+                    updateNested("cultural", "quemInfluenciouOutro", e.target.value)
                   }
                 />
-                {item}
-              </label>
-            ))}
+              )}
+
+              <MultiChoiceField
+                title="3.2 O início do uso ocorreu em contexto ritual/tradicional?"
+                options={INICIO_CONTEXTO_RITUAL_OPTIONS}
+                values={form.cultural.inicioEmContextoRitualTradicional}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "inicioEmContextoRitualTradicional", nextValues)
+                }
+              />
+
+              <MultiChoiceField
+                title="3.3 Naquele momento, você sentiu que teve possibilidade real de escolher usar ou não usar?"
+                options={INICIO_CONTEXTO_RITUAL_OPTIONS}
+                values={form.cultural.houveEscolha}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "houveEscolha", nextValues)
+                }
+              />
+
+              <MultiChoiceField
+                title="3.4 Com que idade você participou pela primeira vez de uso ritual/tradicional do tabaco?"
+                options={IDADE_PRIMEIRA_PARTICIPACAO_OPTIONS}
+                values={form.cultural.idadePrimeiraParticipacaoRitual}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "idadePrimeiraParticipacaoRitual", nextValues)
+                }
+              />
+
+              <MultiChoiceField
+                title="3.5 Com que idade você começou a usar tabaco em contexto ritual/tradicional?"
+                options={IDADE_INICIO_USO_RITUAL_OPTIONS}
+                values={form.cultural.idadeInicioUsoRitual}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "idadeInicioUsoRitual", nextValues)
+                }
+              />
+            </section>
+
+            <section className="cultural-section">
+              <h3>4. Percepção comunitária</h3>
+              <MultiChoiceField
+                title="4.1 Como a comunidade percebe esse uso?"
+                options={PERCEPCAO_COMUNIDADE_OPTIONS}
+                values={form.cultural.percepcaoComunidade}
+                onToggle={(nextValues) =>
+                  updateCulturalChoice(
+                    "percepcaoComunidade",
+                    nextValues,
+                    "percepcaoComunidadeOutro",
+                    ["nao_sabe_informar"]
+                  )
+                }
+              />
+
+              {form.cultural.percepcaoComunidade.includes("outro") && (
+                <input
+                  className="full"
+                  placeholder="4.1 Outro (especificar)"
+                  value={form.cultural.percepcaoComunidadeOutro}
+                  onChange={(e) =>
+                    updateNested("cultural", "percepcaoComunidadeOutro", e.target.value)
+                  }
+                />
+              )}
+
+              <MultiChoiceField
+                title="4.2 Para você, existe diferença entre uso ritual/tradicional e uso comercial do tabaco?"
+                options={BINARIO_OPTIONS}
+                values={form.cultural.diferencaTradicionalComercial}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "diferencaTradicionalComercial", nextValues)
+                }
+              />
+
+              <textarea
+                placeholder="4.3 Se sim, qual a principal diferença? (você pode listar mais de uma)"
+                value={form.cultural.diferencaPrincipal}
+                onChange={(e) =>
+                  updateNested("cultural", "diferencaPrincipal", e.target.value)
+                }
+              />
+            </section>
+
+            <section className="cultural-section">
+              <h3>5. Produto ou substância utilizada</h3>
+              <MultiChoiceField
+                title="5.1 Qual produto ou substância costuma ser utilizada?"
+                options={PRODUTOS_SUBSTANCIAS.map((item) => ({ value: item, label: item }))}
+                values={form.cultural.produtoSubstanciaUtilizada}
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "produtoSubstanciaUtilizada", nextValues)
+                }
+              />
+
+              {form.cultural.produtoSubstanciaUtilizada.includes("outros") && (
+                <input
+                  className="full"
+                  placeholder="5.1 Outros (especificar)"
+                  value={form.cultural.produtoSubstanciaUtilizadaOutros}
+                  onChange={(e) =>
+                    updateNested("cultural", "produtoSubstanciaUtilizadaOutros", e.target.value)
+                  }
+                />
+              )}
+
+              <MultiChoiceField
+                title="5.2 O produto é principalmente:"
+                options={PRODUTO_PRINCIPAL_ORIGEM_OPTIONS}
+                values={form.cultural.produtoPrincipalOrigem}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateCulturalChoice(
+                    "produtoPrincipalOrigem",
+                    nextValues,
+                    "produtoPrincipalOrigemOutro",
+                    ["nao_sabe_informar", "prefere_nao_responder"]
+                  )
+                }
+              />
+
+              {form.cultural.produtoPrincipalOrigem.includes("outro") && (
+                <input
+                  className="full"
+                  placeholder="5.2 Outro (especificar)"
+                  value={form.cultural.produtoPrincipalOrigemOutro}
+                  onChange={(e) =>
+                    updateNested("cultural", "produtoPrincipalOrigemOutro", e.target.value)
+                  }
+                />
+              )}
+            </section>
+
+            <section className="cultural-section">
+              <h3>6. Contextos e finalidades do uso</h3>
+              <MultiChoiceField
+                title="6.1 Em quais contextos você utiliza?"
+                options={CONTEXTOS_UTILIZA.map((item) => ({ value: item, label: item }))}
+                values={form.cultural.contextosUtiliza}
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "contextosUtiliza", nextValues)
+                }
+              />
+
+              {form.cultural.contextosUtiliza.includes("outro") && (
+                <input
+                  className="full"
+                  placeholder="6.1 Outro contexto (especificar)"
+                  value={form.cultural.contextosUtilizaOutro}
+                  onChange={(e) =>
+                    updateNested("cultural", "contextosUtilizaOutro", e.target.value)
+                  }
+                />
+              )}
+
+              <MultiChoiceField
+                title="6.2 Qual a finalidade atribuída ao uso?"
+                options={FINALIDADES_USO.map((item) => ({ value: item, label: item }))}
+                values={form.cultural.finalidadeUso}
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "finalidadeUso", nextValues)
+                }
+              />
+
+              {form.cultural.finalidadeUso.includes("outro") && (
+                <input
+                  className="full"
+                  placeholder="6.2 Outra finalidade (especificar)"
+                  value={form.cultural.finalidadeUsoOutro}
+                  onChange={(e) =>
+                    updateNested("cultural", "finalidadeUsoOutro", e.target.value)
+                  }
+                />
+              )}
+            </section>
+
+            <section className="cultural-section">
+              <h3>7. Forma de consumo</h3>
+              <MultiChoiceField
+                title="7.1 Qual é a principal forma de consumo?"
+                options={FORMA_PRINCIPAL_CONSUMO_OPTIONS}
+                values={form.cultural.formaPrincipalConsumo}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "formaPrincipalConsumo", nextValues)
+                }
+              />
+
+              {form.cultural.formaPrincipalConsumo.includes("outra") && (
+                <input
+                  className="full"
+                  placeholder="7.1 Outra forma de consumo (especificar)"
+                  value={form.cultural.formaPrincipalConsumoOutra}
+                  onChange={(e) =>
+                    updateNested("cultural", "formaPrincipalConsumoOutra", e.target.value)
+                  }
+                />
+              )}
+
+              <MultiChoiceField
+                title="7.2 O uso ocorre mais frequentemente:"
+                options={USO_OCORRE_FREQUENTEMENTE_OPTIONS}
+                values={form.cultural.usoOcorreMaisFrequentemente}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "usoOcorreMaisFrequentemente", nextValues)
+                }
+              />
+            </section>
+
+            <section className="cultural-section">
+              <h3>8. Uso pessoal específico</h3>
+              <MultiChoiceField
+                title="8.1 Você pessoalmente já utilizou tabaco como medicamento ou em contexto de cura/tratamento tradicional?"
+                options={BINARIO_COM_PREFERE_OPTIONS}
+                values={form.cultural.usoMedicamentoCuraPessoal}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "usoMedicamentoCuraPessoal", nextValues)
+                }
+              />
+
+              <MultiChoiceField
+                title="8.2 Você pessoalmente já utilizou tabaco em rodas de conversa ou reuniões comunitárias?"
+                options={BINARIO_COM_PREFERE_OPTIONS}
+                values={form.cultural.usoRodasConversaPessoal}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "usoRodasConversaPessoal", nextValues)
+                }
+              />
+
+              <MultiChoiceField
+                title="8.3 Você já participou de uso ritual de bebidas alcoólicas?"
+                options={BINARIO_COM_PREFERE_OPTIONS}
+                values={form.cultural.usoRitualBebidasAlcoolicas}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "usoRitualBebidasAlcoolicas", nextValues)
+                }
+              />
+            </section>
           </div>
-
-          {form.cultural.formaConsumo.includes("outras") && (
-            <input
-              className="full mt"
-              placeholder="Outra forma de consumo"
-              value={form.cultural.formaConsumoOutras}
-              onChange={(e) =>
-                updateNested("cultural", "formaConsumoOutras", e.target.value)
-              }
-            />
-          )}
-
-          <textarea
-            placeholder="Comentários adicionais"
-            value={form.cultural.comentarios}
-            onChange={(e) =>
-              updateNested("cultural", "comentarios", e.target.value)
-            }
-          />
         </div>
       )}
 
