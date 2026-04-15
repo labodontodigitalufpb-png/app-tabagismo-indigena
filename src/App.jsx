@@ -155,9 +155,9 @@ const AUDIT_Q9_Q10_OPTIONS = [
 const initialState = {
   participante: {
     identificacao: "",
+    telefone: "",
     idade: "",
     sexo: "",
-    telefone: "",
     municipio: "",
     estado: "",
     entrevistador: "",
@@ -652,6 +652,8 @@ export default function App() {
             }
           />
           <input
+            type="tel"
+            inputMode="tel"
             placeholder="Telefone"
             value={form.participante.telefone}
             onChange={(e) =>
@@ -1892,6 +1894,7 @@ export default function App() {
                 <tr>
                   <th>#</th>
                   <th>Nome do usuário</th>
+                  <th>Telefone</th>
                   <th>Município</th>
                   <th>Uso atual</th>
                   <th>Vape</th>
@@ -1906,6 +1909,7 @@ export default function App() {
                   <tr key={caso.id}>
                     <td>{index + 1}</td>
                     <td>{caso.identificacao}</td>
+                    <td>{caso.telefone || "-"}</td>
                     <td>{caso.municipio}</td>
                     <td>{caso.usoAtual}</td>
                     <td>{caso.classificacaoCigarroEletronico}</td>
