@@ -152,6 +152,19 @@ const AUDIT_Q9_Q10_OPTIONS = [
   { label: "Sim, durante o último ano", value: "4" },
 ];
 
+const INITIAL_FAGERSTROM = {
+  tipoUsuario: "",
+  primeiroCigarro: "",
+  dificuldadeLocais: "",
+  cigarroMaisDificil: "",
+  cigarrosDia: "",
+  fumaMaisManha: "",
+  fumaDoente: "",
+  despertaNoiteFumar: "",
+  sintomasAbstinencia: "",
+  tentativasSemSucesso: "",
+};
+
 const initialState = {
   participante: {
     identificacao: "",
@@ -162,7 +175,7 @@ const initialState = {
     estado: "",
     entrevistador: "",
     data: "",
-    idioma: "Português",
+    idioma: "",
     unidadeSaudeAtendimento: "",
     recebeVisitaSaude: "",
   },
@@ -453,10 +466,33 @@ export default function App() {
   const [enviandoSheets, setEnviandoSheets] = useState(false);
   const [mensagemEnvio, setMensagemEnvio] = useState("");
   const googleScriptConfigured = GOOGLE_SCRIPT_URL.length > 0;
+  const fagerstromDisponivel = form.uso.produtoPrincipal.includes("cigarro industrializado");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(casos));
   }, [casos]);
+
+  useEffect(() => {
+    setForm((prev) => {
+      if (!fagerstromDisponivel) {
+        const jaLimpo = Object.values(prev.fagerstrom).every((value) => value === "");
+        if (jaLimpo) return prev;
+        return {
+          ...prev,
+          fagerstrom: { ...INITIAL_FAGERSTROM },
+        };
+      }
+
+      if (prev.fagerstrom.tipoUsuario === "cigarro_industrializado") return prev;
+      return {
+        ...prev,
+        fagerstrom: {
+          ...prev.fagerstrom,
+          tipoUsuario: "cigarro_industrializado",
+        },
+      };
+    });
+  }, [fagerstromDisponivel]);
 
   const updateNested = (section, key, value) => {
     setForm((prev) => ({
@@ -687,22 +723,19 @@ export default function App() {
               updateNested("participante", "entrevistador", e.target.value)
             }
           />
+          <div className="field-with-label field-date">
+            <label htmlFor="data-entrevista">Data da entrevista</label>
+            <input
+              id="data-entrevista"
+              type="date"
+              aria-label="Data da entrevista"
+              title="Data da entrevista"
+              value={form.participante.data}
+              onChange={(e) => updateNested("participante", "data", e.target.value)}
+            />
+          </div>
           <input
-            type={form.participante.data ? "date" : "text"}
-            placeholder="Data da entrevista"
-            aria-label="Data da entrevista"
-            title="Data da entrevista"
-            value={form.participante.data}
-            onFocus={(e) => {
-              e.target.type = "date";
-            }}
-            onBlur={(e) => {
-              if (!e.target.value) e.target.type = "text";
-            }}
-            onChange={(e) => updateNested("participante", "data", e.target.value)}
-          />
-          <input
-            placeholder="Idioma"
+            placeholder="Idioma principal"
             value={form.participante.idioma}
             onChange={(e) => updateNested("participante", "idioma", e.target.value)}
           />
@@ -739,14 +772,14 @@ export default function App() {
         >
           Fagerström
         </button>
+        <button className={tab === "audit" ? "active" : ""} onClick={() => setTab("audit")}>
+          AUDIT
+        </button>
         <button
           className={tab === "cigarroEletronico" ? "active" : ""}
           onClick={() => setTab("cigarroEletronico")}
         >
           Cigarro eletrônico
-        </button>
-        <button className={tab === "audit" ? "active" : ""} onClick={() => setTab("audit")}>
-          AUDIT
         </button>
       </div>
 
@@ -780,7 +813,8 @@ export default function App() {
             </select>
 
             <input
-              placeholder="Início do primeiro uso"
+              className="input-small-text"
+              placeholder="Idade do primeiro uso em ritual/cerimônia"
               value={form.uso.idadeInicioRitual}
               onChange={(e) =>
                 updateNested("uso", "idadeInicioRitual", e.target.value)
@@ -955,19 +989,25 @@ export default function App() {
         <div className="card">
           <h2>Teste de Fagerström</h2>
           <SectionHint>
-            Aplicável principalmente a usuários de cigarros industrializados.
+            Aplicável somente quando o produto principal inclui cigarro industrializado.
           </SectionHint>
+          {!fagerstromDisponivel && (
+            <p className="blocked-note">
+              Para liberar este bloco, marque "cigarro industrializado" em "Uso de
+              tabaco" {">"} "Produto principal".
+            </p>
+          )}
 
-          <div className="grid">
+          <div className={`grid ${!fagerstromDisponivel ? "section-locked" : ""}`}>
             <select
               value={form.fagerstrom.tipoUsuario}
               onChange={(e) =>
                 updateNested("fagerstrom", "tipoUsuario", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
-              <option value="">Tipo principal de usuário</option>
+              <option value="">Tipo principal de usuário (bloqueado)</option>
               <option value="cigarro_industrializado">Cigarro industrializado</option>
-              <option value="outro_produto">Outro produto/dispositivo</option>
             </select>
 
             <select
@@ -975,6 +1015,7 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "primeiroCigarro", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
               <option value="">Primeiro cigarro após acordar</option>
               <option value="5">Até 5 minutos</option>
@@ -988,6 +1029,7 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "dificuldadeLocais", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
               <option value="">Dificuldade em locais proibidos?</option>
               <option value="sim">Sim</option>
@@ -999,6 +1041,7 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "cigarroMaisDificil", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
               <option value="">Mais difícil abandonar</option>
               <option value="primeiro">Primeiro da manhã</option>
@@ -1010,6 +1053,7 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "cigarrosDia", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
               <option value="">Quantos cigarros por dia?</option>
               <option value="10">10 ou menos</option>
@@ -1023,6 +1067,7 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "fumaMaisManha", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
               <option value="">Fuma mais pela manhã?</option>
               <option value="sim">Sim</option>
@@ -1034,6 +1079,7 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "fumaDoente", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
               <option value="">Fuma quando está doente?</option>
               <option value="sim">Sim</option>
@@ -1045,6 +1091,7 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "despertaNoiteFumar", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
               <option value="">Desperta à noite para fumar?</option>
               <option value="sim">Sim</option>
@@ -1056,6 +1103,7 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "sintomasAbstinencia", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
               <option value="">Apresenta sintomas de abstinência?</option>
               <option value="sim">Sim</option>
@@ -1068,6 +1116,7 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "tentativasSemSucesso", e.target.value)
               }
+              disabled={!fagerstromDisponivel}
             >
               <option value="">Múltiplas tentativas sem sucesso?</option>
               <option value="sim">Sim</option>

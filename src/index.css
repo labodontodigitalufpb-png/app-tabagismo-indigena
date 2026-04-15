@@ -197,6 +197,31 @@ p {
   grid-column: 1 / -1;
 }
 
+.field-with-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-with-label label {
+  color: var(--text-h);
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding-left: 2px;
+}
+
+.field-date {
+  padding: 8px 10px 10px;
+  border: 1px solid #cfd6de;
+  border-radius: var(--radius-sm);
+  background: #f7f9fc;
+}
+
+.field-date input[type="date"] {
+  background: #fff;
+}
+
 input,
 select,
 textarea {
@@ -226,6 +251,14 @@ textarea::placeholder {
   color: #6f7883;
 }
 
+.input-small-text {
+  font-size: 0.92rem;
+}
+
+.input-small-text::placeholder {
+  font-size: 0.84rem;
+}
+
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
@@ -233,6 +266,24 @@ button:focus-visible {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.blocked-note {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid #f8d8a8;
+  background: #fff7ea;
+  border-radius: 10px;
+  color: #7a4b00;
+  line-height: 1.4;
+}
+
+.section-locked {
+  opacity: 0.72;
+}
+
+.section-locked select {
+  cursor: not-allowed;
 }
 
 .tabs {
