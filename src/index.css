@@ -84,7 +84,7 @@ textarea {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 1px;
 }
 
 .hero-logo {

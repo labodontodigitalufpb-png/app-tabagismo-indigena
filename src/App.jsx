@@ -652,6 +652,13 @@ export default function App() {
             }
           />
           <input
+            placeholder="Telefone"
+            value={form.participante.telefone}
+            onChange={(e) =>
+              updateNested("participante", "telefone", e.target.value)
+            }
+          />
+          <input
             placeholder="Idade"
             value={form.participante.idade}
             onChange={(e) => updateNested("participante", "idade", e.target.value)}
@@ -660,13 +667,6 @@ export default function App() {
             placeholder="Sexo"
             value={form.participante.sexo}
             onChange={(e) => updateNested("participante", "sexo", e.target.value)}
-          />
-          <input
-            placeholder="Telefone"
-            value={form.participante.telefone}
-            onChange={(e) =>
-              updateNested("participante", "telefone", e.target.value)
-            }
           />
           <input
             placeholder="Município"
@@ -686,9 +686,10 @@ export default function App() {
             }
           />
           <input
-            type="date"
-            aria-label="Data de entrevista"
-            title="Data de entrevista"
+            type={form.participante.data ? "date" : "text"}
+            placeholder="Data da entrevista"
+            aria-label="Data da entrevista"
+            title="Data da entrevista"
             value={form.participante.data}
             onFocus={(e) => {
               e.target.type = "date";
@@ -777,7 +778,7 @@ export default function App() {
             </select>
 
             <input
-              placeholder="Idade do primeiro uso em ritual/cerimônia"
+              placeholder="Início do primeiro uso"
               value={form.uso.idadeInicioRitual}
               onChange={(e) =>
                 updateNested("uso", "idadeInicioRitual", e.target.value)
