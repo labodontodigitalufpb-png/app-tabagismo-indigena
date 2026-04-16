@@ -1,8 +1,6 @@
-# Tabaco Controle
+# Ybytu Livre
 
-Este repositorio e do projeto **Tabaco Controle** (nao e o projeto Ybytu Livre).
-
-Aplicacao React + Vite para registro de casos e envio dos dados para Google Sheets.
+Aplicacao React + Vite para registro de casos e envio de dados para Google Sheets.
 
 ## Rodando localmente
 
@@ -13,7 +11,7 @@ npm run dev
 
 ## Integracao com Google Sheets
 
-O app ja possui um botao `Enviar todos para Google Sheets` e faz um `POST` para uma URL de Google Apps Script.
+O app possui o botao `Enviar todos para Google Sheets` e faz `POST` para uma URL de Google Apps Script.
 
 ### 1. Configurar a URL no front-end
 
@@ -23,11 +21,11 @@ Crie um arquivo `.env` na raiz do projeto com:
 VITE_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/SEU_DEPLOYMENT_ID/exec
 ```
 
-Existe um exemplo em [.env.example](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo geral/tabaco/.env.example).
+Ha um exemplo em [.env.example](.env.example).
 
 ### 2. Criar a planilha
 
-No Google Sheets, crie uma planilha e uma aba chamada, por exemplo, `Respostas`.
+No Google Sheets, crie uma planilha e uma aba chamada `Respostas` (ou outro nome de sua preferencia).
 
 ### 3. Criar o Apps Script
 
@@ -35,7 +33,7 @@ No menu da planilha:
 
 `Extensoes` -> `Apps Script`
 
-Cole o codigo de [Code.gs](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo geral/tabaco/google-apps-script/Code.gs) no editor do Apps Script.
+Cole o conteudo de [google-apps-script/Code.gs](google-apps-script/Code.gs) no editor do Apps Script.
 
 ### 4. Publicar
 
@@ -48,9 +46,7 @@ Use algo como:
 - Executar como: `Voce`
 - Quem tem acesso: `Qualquer pessoa`
 
-Depois copie a URL `/exec` e coloque no `.env`.
-
-O projeto ja vem com um `.env` criado usando a URL que estava configurada anteriormente no app. Se voce publicar uma nova implantacao no seu Google Sheets, substitua esse valor.
+Depois copie a URL final `/exec` e atualize o valor no `.env`.
 
 ### 5. Enviar os dados
 
