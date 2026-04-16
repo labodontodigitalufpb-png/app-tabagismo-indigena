@@ -5,6 +5,12 @@ const HEADER_PARTNERSHIP =
   "Parceria PET Saúde Digital Unifal e UFAM / UNESP SJC Odontologia / LABODIGIT UFPB";
 
 const STORAGE_KEY = "app_tabagismo_casos_v6";
+const MAX_SCORE_USO = 10;
+const MAX_SCORE_FAGERSTROM = 10;
+const MAX_SCORE_CULTURAL = 30;
+const MAX_SCORE_AUDIT = 40;
+const MAX_SCORE_TOTAL =
+  MAX_SCORE_USO + MAX_SCORE_FAGERSTROM + MAX_SCORE_CULTURAL + MAX_SCORE_AUDIT;
 
 const GOOGLE_SCRIPT_URL = (import.meta.env.VITE_GOOGLE_SCRIPT_URL || "").trim();
 const GOOGLE_SCRIPT_NOT_CONFIGURED_MESSAGE =
@@ -379,23 +385,58 @@ function classifyUso(score) {
 }
 
 function scoreCultural(cultural) {
+  const first = (arr) => (Array.isArray(arr) && arr.length ? arr[0] : "");
+  const has = (arr, value) => Array.isArray(arr) && arr.includes(value);
+
   let score = 0;
 
-  if (cultural.usoTradicionalExiste.includes("sim")) score += 1;
-  if (cultural.participouRitualTabaco.includes("sim")) score += 1;
-  if (cultural.diferencaTradicionalComercial.includes("nao")) score += 2;
-  if (cultural.contextosUtiliza.includes("ritual")) score += 1;
-  if (cultural.contextosUtiliza.includes("cotidiano")) score += 2;
-  if (cultural.finalidadeUso.includes("alívio da vontade de fumar")) score += 2;
-  if (cultural.finalidadeUso.includes("alívio emocional")) score += 1;
-  if (cultural.finalidadeUso.includes("socialização")) score += 1;
+  // 1) Exposição e inserção cultural do uso
+  if (has(cultural.usoTradicionalExiste, "sim")) score += 1;
+  if (has(cultural.participouRitualTabaco, "sim")) score += 1;
+  if (has(cultural.contextosEnvolvemUso, "ritual")) score += 1;
+  if (has(cultural.contextosEnvolvemUso, "cura/tratamento tradicional")) score += 1;
+  if (has(cultural.contextosEnvolvemUso, "uso como medicamento tradicional")) score += 1;
 
-  return Math.min(score, 8);
+  // 2) Início precoce e autonomia de escolha
+  const idadeInicioRitual = first(cultural.idadeInicioUsoRitual);
+  if (idadeInicioRitual === "menos_de_10") score += 3;
+  else if (idadeInicioRitual === "10_a_14") score += 2;
+  else if (idadeInicioRitual === "15_a_17") score += 1;
+
+  const houveEscolha = first(cultural.houveEscolha);
+  if (houveEscolha === "nao") score += 2;
+  else if (houveEscolha === "parcialmente") score += 1;
+
+  // 3) Uso além do ritual e motivadores de manutenção
+  if (has(cultural.contextosUtiliza, "cotidiano")) score += 2;
+  if (has(cultural.contextosUtiliza, "quando está sozinho")) score += 2;
+  if (has(cultural.contextosUtiliza, "trabalho")) score += 1;
+
+  const frequenciaContexto = first(cultural.usoOcorreMaisFrequentemente);
+  if (frequenciaContexto === "rituais_e_cotidiano") score += 2;
+  else if (frequenciaContexto === "principalmente_cotidiano") score += 3;
+  else if (frequenciaContexto === "principalmente_vontade_necessidade") score += 3;
+
+  if (has(cultural.finalidadeUso, "alívio da vontade de fumar")) score += 3;
+  if (has(cultural.finalidadeUso, "alívio emocional")) score += 2;
+  if (has(cultural.finalidadeUso, "costume diário")) score += 2;
+  if (has(cultural.finalidadeUso, "socialização")) score += 1;
+  if (has(cultural.finalidadeUso, "relaxamento")) score += 1;
+
+  // 4) Marcadores adicionais de risco
+  if (has(cultural.diferencaTradicionalComercial, "nao")) score += 2;
+  if (has(cultural.usoRitualBebidasAlcoolicas, "sim")) score += 2;
+
+  const sintomasRitual = first(cultural.sintomasDuranteUsoRitual);
+  if (sintomasRitual === "sim") score += 2;
+  else if (sintomasRitual === "nao_sei") score += 1;
+
+  return Math.min(score, MAX_SCORE_CULTURAL);
 }
 
 function classifyCultural(score) {
-  if (score <= 2) return "Baixa complexidade cultural";
-  if (score <= 5) return "Complexidade cultural moderada";
+  if (score <= 9) return "Baixa complexidade cultural";
+  if (score <= 18) return "Complexidade cultural moderada";
   return "Alta complexidade cultural";
 }
 
@@ -411,20 +452,19 @@ function classifyAUDIT(score) {
 }
 
 function classifyDependenciaGeral(total) {
-  if (total <= 7) return "Ausente / Baixo";
-  if (total <= 13) return "Moderado";
+  if (total <= 30) return "Ausente / Baixo";
+  if (total <= 60) return "Moderado";
   return "Alto";
 }
 
 function getDependenciaBarClass(total) {
-  if (total <= 7) return "level-low";
-  if (total <= 13) return "level-medium";
+  if (total <= 30) return "level-low";
+  if (total <= 60) return "level-medium";
   return "level-high";
 }
 
 function getDependenciaBarWidth(total) {
-  const maxScore = 38;
-  const percent = Math.max(0, Math.min((total / maxScore) * 100, 100));
+  const percent = Math.max(0, Math.min((total / MAX_SCORE_TOTAL) * 100, 100));
   return `${percent}%`;
 }
 
@@ -577,9 +617,9 @@ export default function App() {
   const total = fagerScore + usoScore + culturalScore + auditScore;
 
   const prioridade =
-    total <= 10
+    total <= 30
       ? "Baixa prioridade"
-      : total <= 20
+      : total <= 60
       ? "Prioridade moderada"
       : "Alta prioridade para abordagem";
 
