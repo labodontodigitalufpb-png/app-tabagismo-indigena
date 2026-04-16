@@ -1,4 +1,6 @@
-# Tabacontrole
+# Tabaco Controle
+
+Este repositorio e do projeto **Tabaco Controle** (nao e o projeto Ybytu Livre).
 
 Aplicacao React + Vite para registro de casos e envio dos dados para Google Sheets.
 

@@ -1,6 +1,8 @@
-# Apps Script do Laboratorio
+# Apps Script do Laboratorio (Tabaco Controle)
 
 Esta pasta contem o backend Google Apps Script para receber os casos enviados pelo app e gravar tudo em uma planilha do laboratorio.
+
+Este material pertence ao projeto **Tabaco Controle** (nao e o projeto Ybytu Livre).
 
 ## Arquivos
 
@@ -11,9 +13,9 @@ Esta pasta contem o backend Google Apps Script para receber os casos enviados pe
 
 1. Entre na conta Google do laboratorio.
 2. Abra `https://script.new`.
-3. Crie um projeto chamado `Ybytu Livre - Coleta`.
-4. Substitua o conteudo do editor por [Code.gs](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/apps-script/Code.gs).
-5. No arquivo de manifesto, substitua pelo conteudo de [appsscript.json](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo Indigena/app-tabagismo/apps-script/appsscript.json).
+3. Crie um projeto chamado `Tabaco Controle - Coleta`.
+4. Substitua o conteudo do editor por [Code.gs](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo geral/tabaco/apps-script/Code.gs).
+5. No arquivo de manifesto, substitua pelo conteudo de [appsscript.json](/Users/paulobonan/Documents/Universidades/UFPB/pesquisa/projetos/Tabagismo geral/tabaco/apps-script/appsscript.json).
 6. Crie ou escolha uma planilha do Google Sheets do laboratorio e copie o ID dela.
 7. Em `Code.gs`, troque `PREENCHA_COM_O_ID_DA_PLANILHA_DO_LABORATORIO` pelo ID real da planilha.
 8. Clique em `Deploy` > `New deployment` > `Web app`.

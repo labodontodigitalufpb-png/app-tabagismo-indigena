@@ -1,20 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import "./index.css";
+import logo from "./assets/logo.png";
 
 const HEADER_PARTNERSHIP =
   "Parceria PET Saúde Digital Unifal e UFAM / UNESP SJC Odontologia / LABODIGIT UFPB";
 
-const STORAGE_KEY = "app_tabagismo_casos_v6";
-const MAX_SCORE_USO = 10;
-const MAX_SCORE_FAGERSTROM = 10;
-const MAX_SCORE_CULTURAL = 30;
-const MAX_SCORE_AUDIT = 40;
-const MAX_SCORE_TOTAL =
-  MAX_SCORE_USO + MAX_SCORE_FAGERSTROM + MAX_SCORE_CULTURAL + MAX_SCORE_AUDIT;
+const STORAGE_KEY = "tabacontrole_casos_v8";
 
-const GOOGLE_SCRIPT_URL = (import.meta.env.VITE_GOOGLE_SCRIPT_URL || "").trim();
-const GOOGLE_SCRIPT_NOT_CONFIGURED_MESSAGE =
-  "Configure a URL do Apps Script do laboratório para habilitar o envio ao Google Sheets.";
+const GOOGLE_SCRIPT_URL = import.meta.env.VITE_GOOGLE_SCRIPT_URL || "";
 
 const RELIGIOES_OPTIONS = [
   "religião/tradição indígena da comunidade",
@@ -56,131 +49,69 @@ const PRODUTOS_SUBSTANCIAS = [
   "outros",
 ];
 
-const CONTEXTOS_UTILIZA = [
-  "ritual",
-  "cotidiano",
-  "social",
-  "trabalho",
-  "festas",
-  "luto/cerimônia",
-  "cura/tratamento tradicional",
-  "uso como medicamento tradicional",
-  "rodas de conversa",
-  "reuniões comunitárias",
-  "quando está sozinho",
+const TIPOS_DISPOSITIVO_VAPE = [
+  "descartável",
+  "recarregável com refil",
+  "modificável",
+  "pod system",
+  "não sabe",
+];
+
+const SABORES_VAPE = [
+  "frutas",
+  "mentol/hortelã",
+  "doces",
+  "bebidas",
+  "tabaco",
+  "outros",
+];
+
+const OUTROS_PRODUTOS_TABACO = [
+  "narguilé",
+  "cigarro de palha",
+  "charuto",
+  "rapé",
+  "cachimbo",
+  "outros",
+  "nenhum",
+];
+
+const SINTOMAS_VAPE = [
+  "tosse",
+  "ardência na garganta",
+  "falta de ar",
+  "dor no peito",
+  "tontura",
+  "náusea",
+  "dor de cabeça",
+  "palpitação",
+  "nenhum",
+];
+
+const CONTEXTO_SOCIAL_VAPE = [
+  "amigos",
+  "familiares",
+  "colegas de escola/trabalho",
+  "ninguém",
+  "outros",
+];
+
+const SITUACOES_USO_VAPE = [
+  "sozinho",
+  "com amigos",
+  "em festas",
+  "na escola/trabalho",
+  "em casa",
+  "outros",
+];
+
+const DIFICULDADE_PARAR_VAPE = [
+  "vontade intensa",
+  "ansiedade",
+  "influência social",
+  "hábito",
+  "falta de apoio",
   "outro",
-];
-
-const FINALIDADES_USO = [
-  "ritual/espiritual",
-  "socialização",
-  "alívio emocional",
-  "alívio da vontade de fumar",
-  "costume diário",
-  "pressão social",
-  "tradição familiar",
-  "cura/tratamento tradicional",
-  "medicamento tradicional",
-  "participação em rodas de conversa",
-  "relaxamento",
-  "outro",
-];
-
-const BINARIO_OPTIONS = [
-  { value: "sim", label: "Sim" },
-  { value: "nao", label: "Não" },
-  { value: "nao_sabe_informar", label: "Não sabe informar" },
-];
-
-const BINARIO_COM_PREFERE_OPTIONS = [
-  { value: "sim", label: "Sim" },
-  { value: "nao", label: "Não" },
-  { value: "nao_sabe_informar", label: "Não sabe informar" },
-  { value: "prefere_nao_responder", label: "Prefere não responder" },
-];
-
-const QUEM_INFLUENCIOU_OPTIONS = [
-  { value: "familia", label: "Família" },
-  { value: "amigos", label: "Amigos" },
-  { value: "lideranca_indigena", label: "Liderança indígena" },
-  { value: "paje_rezador_curador", label: "Pajé/rezador/curador tradicional" },
-  { value: "comunidade", label: "Comunidade" },
-  { value: "comercio_propaganda", label: "Comércio/propaganda" },
-  { value: "internet_redes_sociais", label: "Internet/redes sociais" },
-  { value: "ninguem_influenciou", label: "Ninguém influenciou" },
-  { value: "outro", label: "Outro" },
-];
-
-const INICIO_CONTEXTO_RITUAL_OPTIONS = [
-  { value: "sim", label: "Sim" },
-  { value: "nao", label: "Não" },
-  { value: "parcialmente", label: "Parcialmente" },
-  { value: "nao_sabe_informar", label: "Não sabe informar" },
-];
-
-const IDADE_PRIMEIRA_PARTICIPACAO_OPTIONS = [
-  { value: "nunca_participei", label: "Nunca participei" },
-  { value: "menos_de_10", label: "Menos de 10 anos" },
-  { value: "10_a_14", label: "10 a 14 anos" },
-  { value: "15_a_17", label: "15 a 17 anos" },
-  { value: "18_a_24", label: "18 a 24 anos" },
-  { value: "25_ou_mais", label: "25 anos ou mais" },
-  { value: "nao_sabe_informar", label: "Não sabe informar" },
-  { value: "prefere_nao_responder", label: "Prefere não responder" },
-];
-
-const IDADE_INICIO_USO_RITUAL_OPTIONS = [
-  { value: "nunca_usei", label: "Nunca usei" },
-  { value: "menos_de_10", label: "Menos de 10 anos" },
-  { value: "10_a_14", label: "10 a 14 anos" },
-  { value: "15_a_17", label: "15 a 17 anos" },
-  { value: "18_a_24", label: "18 a 24 anos" },
-  { value: "25_ou_mais", label: "25 anos ou mais" },
-  { value: "nao_sabe_informar", label: "Não sabe informar" },
-  { value: "prefere_nao_responder", label: "Prefere não responder" },
-];
-
-const PERCEPCAO_COMUNIDADE_OPTIONS = [
-  { value: "pratica_tradicional_respeitada", label: "Como prática tradicional respeitada" },
-  { value: "habito_cotidiano_comum", label: "Como hábito cotidiano comum" },
-  { value: "problema_de_saude", label: "Como problema de saúde" },
-  { value: "pratica_social_convivencia", label: "Como prática social/de convivência" },
-  { value: "restrito_a_pessoas_ou_momentos", label: "Como algo restrito a determinadas pessoas ou momentos" },
-  { value: "ha_opinioes_diferentes", label: "Há opiniões diferentes na comunidade" },
-  { value: "nao_sabe_informar", label: "Não sabe informar" },
-  { value: "outro", label: "Outro" },
-];
-
-const PRODUTO_PRINCIPAL_ORIGEM_OPTIONS = [
-  { value: "produzido_preparado_na_comunidade", label: "Produzido/preparado na comunidade" },
-  { value: "comprado_em_comercio", label: "Comprado em comércio" },
-  { value: "recebido_de_familiares_ou_comunidade", label: "Recebido de familiares ou membros da comunidade" },
-  { value: "recebido_em_contexto_ritual_tradicional", label: "Recebido em contexto ritual/tradicional" },
-  { value: "nao_sabe_informar", label: "Não sabe informar" },
-  { value: "outro", label: "Outro" },
-];
-
-const FORMA_PRINCIPAL_CONSUMO_OPTIONS = [
-  { value: "cigarro_industrializado", label: "Cigarro industrializado" },
-  { value: "cigarro_artesanal_palha", label: "Cigarro artesanal/de palha" },
-  { value: "cachimbo", label: "Cachimbo" },
-  { value: "rape", label: "Rapé" },
-  { value: "mascado", label: "Mascado" },
-  { value: "charuto", label: "Charuto" },
-  { value: "cigarro_eletronico", label: "Cigarro eletrônico" },
-  { value: "narguile", label: "Narguilé" },
-  { value: "outra", label: "Outra" },
-];
-
-const USO_OCORRE_FREQUENTEMENTE_OPTIONS = [
-  { value: "apenas_rituais_tradicoes", label: "Apenas em rituais/tradições" },
-  { value: "rituais_e_cotidiano", label: "Em rituais e também no cotidiano" },
-  { value: "principalmente_cotidiano", label: "Principalmente no cotidiano" },
-  { value: "principalmente_social", label: "Principalmente em situações sociais" },
-  { value: "principalmente_rodas_conversa", label: "Principalmente em rodas de conversa" },
-  { value: "principalmente_cura_tratamento_tradicional", label: "Principalmente para cura/tratamento tradicional" },
-  { value: "principalmente_vontade_necessidade", label: "Principalmente quando sente vontade/necessidade" },
-  { value: "nao_sabe_informar", label: "Não sabe informar" },
 ];
 
 const AUDIT_Q1_OPTIONS = [
@@ -221,35 +152,19 @@ const AUDIT_Q9_Q10_OPTIONS = [
   { label: "Sim, durante o último ano", value: "4" },
 ];
 
-const INITIAL_FAGERSTROM = {
-  tipoUsuario: "",
-  primeiroCigarro: "",
-  dificuldadeLocais: "",
-  cigarroMaisDificil: "",
-  cigarrosDia: "",
-  fumaMaisManha: "",
-  fumaDoente: "",
-  despertaNoiteFumar: "",
-  sintomasAbstinencia: "",
-  tentativasSemSucesso: "",
-};
-
 const initialState = {
   participante: {
     identificacao: "",
-    telefone: "",
     idade: "",
     sexo: "",
-    aldeia: "",
+    telefone: "",
     municipio: "",
     estado: "",
-    etnia: "",
     entrevistador: "",
     data: "",
-    idioma: "",
-    localResidencia: "",
+    idioma: "Português",
+    unidadeSaudeAtendimento: "",
     recebeVisitaSaude: "",
-    circulaCidadeAldeia: "",
   },
   uso: {
     usoAtual: "",
@@ -272,39 +187,66 @@ const initialState = {
     cultivoLocal: "",
     observacoes: "",
   },
-  fagerstrom: { ...INITIAL_FAGERSTROM },
-  cultural: {
-    religioes: [],
-    religioesOutro: "",
-    usoTradicionalExiste: [],
-    participouRitualTabaco: [],
-    contextosEnvolvemUso: [],
-    contextosEnvolvemUsoOutro: "",
-    quemInfluenciou: [],
-    quemInfluenciouOutro: "",
-    inicioEmContextoRitualTradicional: [],
-    houveEscolha: [],
-    idadePrimeiraParticipacaoRitual: [],
-    idadeInicioUsoRitual: [],
-    percepcaoComunidade: [],
-    percepcaoComunidadeOutro: "",
-    diferencaTradicionalComercial: [],
-    diferencaPrincipal: "",
-    produtoSubstanciaUtilizada: [],
-    produtoSubstanciaUtilizadaOutros: "",
-    produtoPrincipalOrigem: [],
-    produtoPrincipalOrigemOutro: "",
-    contextosUtiliza: [],
-    contextosUtilizaOutro: "",
-    finalidadeUso: [],
-    finalidadeUsoOutro: "",
-    formaPrincipalConsumo: [],
-    formaPrincipalConsumoOutra: "",
-    usoOcorreMaisFrequentemente: [],
-    usoMedicamentoCuraPessoal: [],
-    usoRodasConversaPessoal: [],
-    usoRitualBebidasAlcoolicas: [],
-    sintomasDuranteUsoRitual: [],
+  fagerstrom: {
+    tipoUsuario: "",
+    primeiroCigarro: "",
+    dificuldadeLocais: "",
+    cigarroMaisDificil: "",
+    cigarrosDia: "",
+    fumaMaisManha: "",
+    fumaDoente: "",
+    despertaNoiteFumar: "",
+    sintomasAbstinencia: "",
+    tentativasSemSucesso: "",
+  },
+  cigarroEletronico: {
+    jaUsouAlgumaVez: "",
+    usoAtual: "",
+    idadePrimeiroUso: "",
+    idadeUsoFrequente: "",
+    tempoUso: "",
+    vezesPorDia: "",
+    tipoDispositivo: "",
+    usaMaisDeUm: "",
+    compartilhaDispositivo: "",
+    localCompra: "",
+    contemNicotina: "",
+    concentracaoNicotina: "",
+    usaSabores: "",
+    saboresMaisUsados: [],
+    saboresOutros: "",
+    outrasSubstancias: "",
+    vontadeAoAcordar: "",
+    dificuldadeSemUsar: "",
+    necessidadeForteDia: "",
+    usaDoente: "",
+    tentouReduzirSemConseguir: "",
+    abstinenciaQuandoSemUsar: "",
+    acordaNoiteParaUsar: "",
+    motivoInicio: "",
+    motivoInicioOutro: "",
+    motivoContinua: "",
+    motivoContinuaOutro: "",
+    fumaCigarroConvencional: "",
+    outrosProdutosTabaco: [],
+    outrosProdutosTabacoOutros: "",
+    comecouAntesOuDepois: "",
+    usaParaPararCigarroComum: "",
+    sintomasPercebidos: [],
+    pioraRespiratoria: "",
+    quemUsaPerto: "",
+    situacoesUso: [],
+    situacoesUsoOutros: "",
+    incentivoDeAlguem: "",
+    achaQueFazMal: "",
+    achaMenosMalQueCigarro: "",
+    achaQueCausaDependencia: "",
+    pensouEmParar: "",
+    jaTentouParar: "",
+    quantasTentativas: "",
+    dificuldadeParar: [],
+    dificuldadePararOutro: "",
+    gostariaAjuda: "",
   },
   audit: {
     q1: "",
@@ -384,60 +326,36 @@ function classifyUso(score) {
   return "Padrão elevado";
 }
 
-function scoreCultural(cultural) {
-  const first = (arr) => (Array.isArray(arr) && arr.length ? arr[0] : "");
-  const has = (arr, value) => Array.isArray(arr) && arr.includes(value);
-
+function scoreCigarroEletronico(v) {
   let score = 0;
 
-  // 1) Exposição e inserção cultural do uso
-  if (has(cultural.usoTradicionalExiste, "sim")) score += 1;
-  if (has(cultural.participouRitualTabaco, "sim")) score += 1;
-  if (has(cultural.contextosEnvolvemUso, "ritual")) score += 1;
-  if (has(cultural.contextosEnvolvemUso, "cura/tratamento tradicional")) score += 1;
-  if (has(cultural.contextosEnvolvemUso, "uso como medicamento tradicional")) score += 1;
+  if (
+    v.usoAtual === "sim_diariamente" ||
+    v.usoAtual === "sim_alguns_dias" ||
+    v.usoAtual === "sim_ocasionalmente"
+  )
+    score += 2;
 
-  // 2) Início precoce e autonomia de escolha
-  const idadeInicioRitual = first(cultural.idadeInicioUsoRitual);
-  if (idadeInicioRitual === "menos_de_10") score += 3;
-  else if (idadeInicioRitual === "10_a_14") score += 2;
-  else if (idadeInicioRitual === "15_a_17") score += 1;
+  if (v.usoAtual === "sim_diariamente") score += 2;
+  if (v.vezesPorDia === "11_20") score += 1;
+  if (v.vezesPorDia === "mais_20") score += 2;
+  if (v.contemNicotina === "sim") score += 2;
+  if (v.vontadeAoAcordar === "5min") score += 2;
+  else if (v.vontadeAoAcordar === "30min") score += 1;
+  if (v.dificuldadeSemUsar === "sim") score += 1;
+  if (v.necessidadeForteDia === "sim") score += 1;
+  if (v.tentouReduzirSemConseguir === "sim") score += 1;
+  if (v.abstinenciaQuandoSemUsar === "sim") score += 1;
+  if (v.acordaNoiteParaUsar === "sim") score += 1;
+  if (v.gostariaAjuda === "sim_agora") score += 1;
 
-  const houveEscolha = first(cultural.houveEscolha);
-  if (houveEscolha === "nao") score += 2;
-  else if (houveEscolha === "parcialmente") score += 1;
-
-  // 3) Uso além do ritual e motivadores de manutenção
-  if (has(cultural.contextosUtiliza, "cotidiano")) score += 2;
-  if (has(cultural.contextosUtiliza, "quando está sozinho")) score += 2;
-  if (has(cultural.contextosUtiliza, "trabalho")) score += 1;
-
-  const frequenciaContexto = first(cultural.usoOcorreMaisFrequentemente);
-  if (frequenciaContexto === "rituais_e_cotidiano") score += 2;
-  else if (frequenciaContexto === "principalmente_cotidiano") score += 3;
-  else if (frequenciaContexto === "principalmente_vontade_necessidade") score += 3;
-
-  if (has(cultural.finalidadeUso, "alívio da vontade de fumar")) score += 3;
-  if (has(cultural.finalidadeUso, "alívio emocional")) score += 2;
-  if (has(cultural.finalidadeUso, "costume diário")) score += 2;
-  if (has(cultural.finalidadeUso, "socialização")) score += 1;
-  if (has(cultural.finalidadeUso, "relaxamento")) score += 1;
-
-  // 4) Marcadores adicionais de risco
-  if (has(cultural.diferencaTradicionalComercial, "nao")) score += 2;
-  if (has(cultural.usoRitualBebidasAlcoolicas, "sim")) score += 2;
-
-  const sintomasRitual = first(cultural.sintomasDuranteUsoRitual);
-  if (sintomasRitual === "sim") score += 2;
-  else if (sintomasRitual === "nao_sei") score += 1;
-
-  return Math.min(score, MAX_SCORE_CULTURAL);
+  return Math.min(score, 15);
 }
 
-function classifyCultural(score) {
-  if (score <= 9) return "Baixa complexidade cultural";
-  if (score <= 18) return "Complexidade cultural moderada";
-  return "Alta complexidade cultural";
+function classifyCigarroEletronico(score) {
+  if (score <= 4) return "Baixo padrão de uso";
+  if (score <= 9) return "Padrão intermediário";
+  return "Padrão elevado";
 }
 
 function scoreAUDIT(audit) {
@@ -452,36 +370,21 @@ function classifyAUDIT(score) {
 }
 
 function classifyDependenciaGeral(total) {
-  if (total <= 30) return "Ausente / Baixo";
-  if (total <= 60) return "Moderado";
+  if (total <= 8) return "Ausente / Baixo";
+  if (total <= 18) return "Moderado";
   return "Alto";
 }
 
 function getDependenciaBarClass(total) {
-  if (total <= 30) return "level-low";
-  if (total <= 60) return "level-medium";
+  if (total <= 8) return "level-low";
+  if (total <= 18) return "level-medium";
   return "level-high";
 }
 
 function getDependenciaBarWidth(total) {
-  const percent = Math.max(0, Math.min((total / MAX_SCORE_TOTAL) * 100, 100));
+  const maxScore = 45;
+  const percent = Math.max(0, Math.min((total / maxScore) * 100, 100));
   return `${percent}%`;
-}
-
-function normalizeCasePhone(caso) {
-  if (!caso || typeof caso !== "object") return caso;
-
-  const currentPhone = String(caso.telefone || "").trim();
-  if (currentPhone) return caso;
-
-  const identificacao = String(caso.identificacao || "").trim();
-  const digits = identificacao.replace(/\D/g, "");
-  if (digits.length < 8) return caso;
-
-  return {
-    ...caso,
-    telefone: identificacao,
-  };
 }
 
 function loadCasesFromStorage() {
@@ -489,7 +392,7 @@ function loadCasesFromStorage() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map(normalizeCasePhone) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -550,33 +453,10 @@ export default function App() {
   const [enviandoSheets, setEnviandoSheets] = useState(false);
   const [mensagemEnvio, setMensagemEnvio] = useState("");
   const googleScriptConfigured = GOOGLE_SCRIPT_URL.length > 0;
-  const fagerstromDisponivel = form.uso.produtoPrincipal.includes("cigarro industrializado");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(casos));
   }, [casos]);
-
-  useEffect(() => {
-    setForm((prev) => {
-      if (!fagerstromDisponivel) {
-        const jaLimpo = Object.values(prev.fagerstrom).every((value) => value === "");
-        if (jaLimpo) return prev;
-        return {
-          ...prev,
-          fagerstrom: { ...INITIAL_FAGERSTROM },
-        };
-      }
-
-      if (prev.fagerstrom.tipoUsuario === "cigarro_industrializado") return prev;
-      return {
-        ...prev,
-        fagerstrom: {
-          ...prev.fagerstrom,
-          tipoUsuario: "cigarro_industrializado",
-        },
-      };
-    });
-  }, [fagerstromDisponivel]);
 
   const updateNested = (section, key, value) => {
     setForm((prev) => ({
@@ -588,38 +468,19 @@ export default function App() {
     }));
   };
 
-  const updateCulturalChoice = (key, values, clearField, clearOnValues = []) => {
-    setForm((prev) => {
-      const nextCultural = {
-        ...prev.cultural,
-        [key]: values,
-      };
-
-      if (clearField && clearOnValues.some((value) => values.includes(value))) {
-        nextCultural[clearField] = "";
-      }
-
-      return {
-        ...prev,
-        cultural: nextCultural,
-      };
-    });
-  };
-
-  const fagerScore = useMemo(
-    () => scoreFagerstrom(form.fagerstrom),
-    [form.fagerstrom]
-  );
-
+  const fagerScore = useMemo(() => scoreFagerstrom(form.fagerstrom), [form.fagerstrom]);
   const usoScore = useMemo(() => scoreUso(form.uso), [form.uso]);
-  const culturalScore = useMemo(() => scoreCultural(form.cultural), [form.cultural]);
+  const vapeScore = useMemo(
+    () => scoreCigarroEletronico(form.cigarroEletronico),
+    [form.cigarroEletronico]
+  );
   const auditScore = useMemo(() => scoreAUDIT(form.audit), [form.audit]);
-  const total = fagerScore + usoScore + culturalScore + auditScore;
+  const total = fagerScore + usoScore + vapeScore + auditScore;
 
   const prioridade =
-    total <= 30
+    total <= 10
       ? "Baixa prioridade"
-      : total <= 60
+      : total <= 22
       ? "Prioridade moderada"
       : "Alta prioridade para abordagem";
 
@@ -637,8 +498,13 @@ export default function App() {
       ...form.uso,
       ...form.fagerstrom,
       ...form.audit,
+      ...form.cigarroEletronico,
       produtoPrincipal: form.uso.produtoPrincipal.join(", "),
-      ...culturalFlat,
+      saboresMaisUsados: form.cigarroEletronico.saboresMaisUsados.join(", "),
+      outrosProdutosTabaco: form.cigarroEletronico.outrosProdutosTabaco.join(", "),
+      sintomasPercebidos: form.cigarroEletronico.sintomasPercebidos.join(", "),
+      situacoesUso: form.cigarroEletronico.situacoesUso.join(", "),
+      dificuldadeParar: form.cigarroEletronico.dificuldadeParar.join(", "),
       scoreUso: usoScore,
       classificacaoUso: classifyUso(usoScore),
       scoreFagerstrom: fagerScore,
@@ -646,8 +512,8 @@ export default function App() {
         fagerScore,
         form.fagerstrom.tipoUsuario
       ),
-      scoreCultural: culturalScore,
-      classificacaoCultural: classifyCultural(culturalScore),
+      scoreCigarroEletronico: vapeScore,
+      classificacaoCigarroEletronico: classifyCigarroEletronico(vapeScore),
       scoreAUDIT: auditScore,
       classificacaoAUDIT: classifyAUDIT(auditScore),
       scoreTotal: total,
@@ -675,55 +541,55 @@ export default function App() {
       return;
     }
 
+    if (!GOOGLE_SCRIPT_URL) {
+      const mensagem =
+        "Configure a variável VITE_GOOGLE_SCRIPT_URL para enviar os dados ao Google Sheets.";
+      setMensagemEnvio(mensagem);
+      alert(mensagem);
+      return;
+    }
+
     setEnviandoSheets(true);
     setMensagemEnvio("");
 
     try {
-      const formData = new FormData();
-      const casosNormalizados = casos.map(normalizeCasePhone);
-
-      formData.append(
-        "payload",
-        JSON.stringify({
-          origem: "app-tabagismo-indigena",
-          timestampEnvio: new Date().toISOString(),
-          quantidadeCasos: casosNormalizados.length,
-          casos: casosNormalizados,
-        })
-      );
-
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: formData,
+      const payload = JSON.stringify({
+        origem: "tabacontrole",
+        timestampEnvio: new Date().toISOString(),
+        quantidadeCasos: casos.length,
+        casos,
       });
 
-      const texto = await response.text();
-      let json = {};
+      const iframeName = `google-sheets-submit-${Date.now()}`;
+      const iframe = document.createElement("iframe");
+      iframe.name = iframeName;
+      iframe.style.display = "none";
 
-      try {
-        json = JSON.parse(texto);
-      } catch {
-        json = {};
-      }
+      const formElement = document.createElement("form");
+      formElement.method = "POST";
+      formElement.action = GOOGLE_SCRIPT_URL;
+      formElement.target = iframeName;
+      formElement.style.display = "none";
 
-      if (!response.ok) {
-        throw new Error(`Erro HTTP ${response.status}`);
-      }
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "payload";
+      input.value = payload;
 
-      if (json.sucesso === false) {
-        throw new Error(json.mensagem || "Falha no envio.");
-      }
+      formElement.appendChild(input);
+      document.body.appendChild(iframe);
+      document.body.appendChild(formElement);
+      formElement.submit();
 
-      const detalhesEnvio = [
-        "Dados enviados com sucesso para o Google Sheets.",
-        json.envioId ? `envioId: ${json.envioId}` : "",
-        json.planilhaId ? `planilhaId: ${json.planilhaId}` : "",
-      ]
-        .filter(Boolean)
-        .join(" ");
+      window.setTimeout(() => {
+        formElement.remove();
+        iframe.remove();
+      }, 4000);
 
-      setMensagemEnvio(detalhesEnvio);
-      alert("Dados enviados com sucesso para o Google Sheets.");
+      setMensagemEnvio(
+        "Dados enviados para o Google Sheets. Confirme a chegada diretamente na planilha."
+      );
+      alert("Envio realizado. Confira a planilha para confirmar o recebimento.");
     } catch (error) {
       console.error("Erro ao enviar para Google Sheets:", error);
       const erroMensagem =
@@ -760,14 +626,13 @@ export default function App() {
       <header className="hero">
         <div className="hero-brand">
           <img
-            src="/logo-app.png"
-            alt="Logo Ybytu Livre"
+            src={logo}
+            alt="Logo Tabaco Controle"
             className="hero-logo"
+            style={{ width: "620px" }}
           />
           <div className="hero-text">
             <div className="hero-top">{HEADER_PARTNERSHIP}</div>
-            <h1>Ybytu Livre</h1>
-            <p className="subtitle">Apoio para parar de fumar</p>
           </div>
         </div>
       </header>
@@ -775,7 +640,7 @@ export default function App() {
       <div className="card">
         <h2>Identificação</h2>
         <SectionHint>
-          Inclui local de residência/circulação e presença de equipe de saúde.
+          Inclui unidade de saude de atendimento e presenca de equipe de saude.
         </SectionHint>
 
         <div className="grid">
@@ -789,7 +654,9 @@ export default function App() {
           <input
             placeholder="Telefone"
             value={form.participante.telefone}
-            onChange={(e) => updateNested("participante", "telefone", e.target.value)}
+            onChange={(e) =>
+              updateNested("participante", "telefone", e.target.value)
+            }
           />
           <input
             placeholder="Idade"
@@ -802,11 +669,6 @@ export default function App() {
             onChange={(e) => updateNested("participante", "sexo", e.target.value)}
           />
           <input
-            placeholder="Aldeia ou Polo"
-            value={form.participante.aldeia}
-            onChange={(e) => updateNested("participante", "aldeia", e.target.value)}
-          />
-          <input
             placeholder="Município"
             value={form.participante.municipio}
             onChange={(e) => updateNested("participante", "municipio", e.target.value)}
@@ -817,45 +679,39 @@ export default function App() {
             onChange={(e) => updateNested("participante", "estado", e.target.value)}
           />
           <input
-            placeholder="Etnia"
-            value={form.participante.etnia}
-            onChange={(e) => updateNested("participante", "etnia", e.target.value)}
-          />
-          <input
             placeholder="Entrevistador"
             value={form.participante.entrevistador}
             onChange={(e) =>
               updateNested("participante", "entrevistador", e.target.value)
             }
           />
-          <div className="field-with-label field-date">
-            <label htmlFor="data-entrevista">Data da entrevista</label>
-            <input
-              id="data-entrevista"
-              type="date"
-              aria-label="Data da entrevista"
-              title="Data da entrevista"
-              value={form.participante.data}
-              onChange={(e) => updateNested("participante", "data", e.target.value)}
-            />
-          </div>
           <input
-            placeholder="Idioma principal"
+            type={form.participante.data ? "date" : "text"}
+            placeholder="Data da entrevista"
+            aria-label="Data da entrevista"
+            title="Data da entrevista"
+            value={form.participante.data}
+            onFocus={(e) => {
+              e.target.type = "date";
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) e.target.type = "text";
+            }}
+            onChange={(e) => updateNested("participante", "data", e.target.value)}
+          />
+          <input
+            placeholder="Idioma"
             value={form.participante.idioma}
             onChange={(e) => updateNested("participante", "idioma", e.target.value)}
           />
 
-          <select
-            value={form.participante.localResidencia}
+          <input
+            placeholder="Unidade de saude de atendimento"
+            value={form.participante.unidadeSaudeAtendimento}
             onChange={(e) =>
-              updateNested("participante", "localResidencia", e.target.value)
+              updateNested("participante", "unidadeSaudeAtendimento", e.target.value)
             }
-          >
-            <option value="">Local de residência</option>
-            <option value="aldeia">Vive na aldeia</option>
-            <option value="cidade">Vive na cidade</option>
-            <option value="circula">Circula entre aldeia e cidade</option>
-          </select>
+          />
 
           <select
             value={form.participante.recebeVisitaSaude}
@@ -867,18 +723,6 @@ export default function App() {
             <option value="sim">Sim</option>
             <option value="nao">Não</option>
             <option value="nao_sabe">Não sabe</option>
-          </select>
-
-          <select
-            value={form.participante.circulaCidadeAldeia}
-            onChange={(e) =>
-              updateNested("participante", "circulaCidadeAldeia", e.target.value)
-            }
-          >
-            <option value="">Circulação entre cidade e aldeia</option>
-            <option value="frequente">Frequente</option>
-            <option value="ocasional">Ocasional</option>
-            <option value="nao">Não</option>
           </select>
         </div>
       </div>
@@ -893,14 +737,14 @@ export default function App() {
         >
           Fagerström
         </button>
+        <button
+          className={tab === "cigarroEletronico" ? "active" : ""}
+          onClick={() => setTab("cigarroEletronico")}
+        >
+          Cigarro eletrônico
+        </button>
         <button className={tab === "audit" ? "active" : ""} onClick={() => setTab("audit")}>
           AUDIT
-        </button>
-        <button
-          className={tab === "cultural" ? "active" : ""}
-          onClick={() => setTab("cultural")}
-        >
-          Módulo cultural
         </button>
       </div>
 
@@ -908,7 +752,7 @@ export default function App() {
         <div className="card">
           <h2>Questionário de uso de tabaco</h2>
           <SectionHint>
-            Diferencia início ritual e início regular, contempla recaída, apoio prévio e encaminhamento.
+            Avalia padrão atual de uso, recaída, apoio prévio e necessidade de encaminhamento.
           </SectionHint>
 
           <div className="grid">
@@ -934,8 +778,7 @@ export default function App() {
             </select>
 
             <input
-              className="input-small-text"
-              placeholder="Idade do primeiro uso em ritual/cerimônia"
+              placeholder="Início do primeiro uso"
               value={form.uso.idadeInicioRitual}
               onChange={(e) =>
                 updateNested("uso", "idadeInicioRitual", e.target.value)
@@ -1110,25 +953,19 @@ export default function App() {
         <div className="card">
           <h2>Teste de Fagerström</h2>
           <SectionHint>
-            Aplicável somente quando o produto principal inclui cigarro industrializado.
+            Aplicável principalmente a usuários de cigarros industrializados.
           </SectionHint>
-          {!fagerstromDisponivel && (
-            <p className="blocked-note">
-              Para liberar este bloco, marque "cigarro industrializado" em "Uso de
-              tabaco" {">"} "Produto principal".
-            </p>
-          )}
 
-          <div className={`grid ${!fagerstromDisponivel ? "section-locked" : ""}`}>
+          <div className="grid">
             <select
               value={form.fagerstrom.tipoUsuario}
               onChange={(e) =>
                 updateNested("fagerstrom", "tipoUsuario", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
-              <option value="">Tipo principal de usuário (bloqueado)</option>
+              <option value="">Tipo principal de usuário</option>
               <option value="cigarro_industrializado">Cigarro industrializado</option>
+              <option value="outro_produto">Outro produto/dispositivo</option>
             </select>
 
             <select
@@ -1136,7 +973,6 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "primeiroCigarro", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
               <option value="">Primeiro cigarro após acordar</option>
               <option value="5">Até 5 minutos</option>
@@ -1150,7 +986,6 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "dificuldadeLocais", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
               <option value="">Dificuldade em locais proibidos?</option>
               <option value="sim">Sim</option>
@@ -1162,7 +997,6 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "cigarroMaisDificil", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
               <option value="">Mais difícil abandonar</option>
               <option value="primeiro">Primeiro da manhã</option>
@@ -1174,7 +1008,6 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "cigarrosDia", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
               <option value="">Quantos cigarros por dia?</option>
               <option value="10">10 ou menos</option>
@@ -1188,7 +1021,6 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "fumaMaisManha", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
               <option value="">Fuma mais pela manhã?</option>
               <option value="sim">Sim</option>
@@ -1200,7 +1032,6 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "fumaDoente", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
               <option value="">Fuma quando está doente?</option>
               <option value="sim">Sim</option>
@@ -1212,7 +1043,6 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "despertaNoiteFumar", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
               <option value="">Desperta à noite para fumar?</option>
               <option value="sim">Sim</option>
@@ -1224,7 +1054,6 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "sintomasAbstinencia", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
               <option value="">Apresenta sintomas de abstinência?</option>
               <option value="sim">Sim</option>
@@ -1237,7 +1066,6 @@ export default function App() {
               onChange={(e) =>
                 updateNested("fagerstrom", "tentativasSemSucesso", e.target.value)
               }
-              disabled={!fagerstromDisponivel}
             >
               <option value="">Múltiplas tentativas sem sucesso?</option>
               <option value="sim">Sim</option>
@@ -1247,371 +1075,691 @@ export default function App() {
         </div>
       )}
 
-      {tab === "cultural" && (
-        <div className="card cultural-card">
-          <h2>Módulo cultural</h2>
+      {tab === "cigarroEletronico" && (
+        <div className="card">
+          <h2>Avaliação do uso de cigarro eletrônico</h2>
           <SectionHint>
-            Diferencia uso ritual/tradicional, uso cotidiano, uso comercial e significados culturais.
+            Investiga histórico de uso, dependência, sintomas, contexto social e interesse em parar.
           </SectionHint>
 
-          <div className="cultural-layout">
-            <section className="cultural-section">
-              <h3>1. Religião, espiritualidade e crenças</h3>
-              <MultiChoiceField
-                title="1.1 Qual(is) religião(ões), espiritualidade(s) ou sistema(s) de crenças você segue ou pratica?"
-                options={RELIGIOES_OPTIONS.map((item) => ({ value: item, label: item }))}
-                values={form.cultural.religioes}
-                onToggle={(nextValues) =>
-                  updateCulturalChoice(
-                    "religioes",
-                    nextValues,
-                    "religioesOutro",
-                    ["prefere não responder"]
-                  )
-                }
-              />
+          <div className="grid">
+            <select
+              value={form.cigarroEletronico.jaUsouAlgumaVez}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "jaUsouAlgumaVez", e.target.value)
+              }
+            >
+              <option value="">Já usou cigarro eletrônico alguma vez?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
 
-              {form.cultural.religioes.includes("outro") && (
-                <input
-                  className="full"
-                  placeholder="1.1 Outro (especificar)"
-                  value={form.cultural.religioesOutro}
-                  onChange={(e) =>
-                    updateNested("cultural", "religioesOutro", e.target.value)
-                  }
-                />
-              )}
-            </section>
+            <select
+              value={form.cigarroEletronico.usoAtual}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "usoAtual", e.target.value)
+              }
+            >
+              <option value="">Usa cigarro eletrônico atualmente?</option>
+              <option value="sim_diariamente">Sim, diariamente</option>
+              <option value="sim_alguns_dias">Sim, alguns dias por semana</option>
+              <option value="sim_ocasionalmente">Sim, ocasionalmente</option>
+              <option value="nao_mas_ja_usei">Não, mas já usei</option>
+              <option value="nunca_usei">Nunca usei</option>
+            </select>
 
-            <section className="cultural-section">
-              <h3>2. Uso tradicional, ritual ou medicinal</h3>
-              <MultiChoiceField
-                title="2.1 Na sua comunidade existe uso tradicional, ritual, espiritual ou medicinal do tabaco?"
-                options={BINARIO_OPTIONS}
-                values={form.cultural.usoTradicionalExiste}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "usoTradicionalExiste", nextValues)
-                }
-              />
+            <input
+              placeholder="Idade do primeiro uso"
+              value={form.cigarroEletronico.idadePrimeiroUso}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "idadePrimeiroUso", e.target.value)
+              }
+            />
 
-              <MultiChoiceField
-                title="2.2 Você já participou de algum ritual, cerimônia ou prática tradicional que envolvesse tabaco?"
-                options={[
-                  { value: "sim", label: "Sim" },
-                  { value: "nao", label: "Não" },
-                  { value: "prefere_nao_responder", label: "Prefere não responder" },
-                ]}
-                values={form.cultural.participouRitualTabaco}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "participouRitualTabaco", nextValues)
-                }
-              />
+            <input
+              placeholder="Idade de início do uso frequente"
+              value={form.cigarroEletronico.idadeUsoFrequente}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "idadeUsoFrequente", e.target.value)
+              }
+            />
 
-              <MultiChoiceField
-                title="2.3 Quais contextos envolvem esse uso?"
-                options={CONTEXTOS_ENVOLVEM_USO.map((item) => ({ value: item, label: item }))}
-                values={form.cultural.contextosEnvolvemUso}
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "contextosEnvolvemUso", nextValues)
-                }
-              />
+            <select
+              value={form.cigarroEletronico.tempoUso}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "tempoUso", e.target.value)
+              }
+            >
+              <option value="">Há quanto tempo usa?</option>
+              <option value="menos_1_mes">Menos de 1 mês</option>
+              <option value="1_6_meses">1 a 6 meses</option>
+              <option value="6_12_meses">6 a 12 meses</option>
+              <option value="mais_1_ano">Mais de 1 ano</option>
+            </select>
 
-              {form.cultural.contextosEnvolvemUso.includes("outro") && (
-                <input
-                  className="full"
-                  placeholder="2.3 Outro contexto (especificar)"
-                  value={form.cultural.contextosEnvolvemUsoOutro}
-                  onChange={(e) =>
-                    updateNested("cultural", "contextosEnvolvemUsoOutro", e.target.value)
-                  }
-                />
-              )}
-            </section>
+            <select
+              value={form.cigarroEletronico.vezesPorDia}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "vezesPorDia", e.target.value)
+              }
+            >
+              <option value="">Quantas vezes por dia utiliza?</option>
+              <option value="1_5">1 a 5</option>
+              <option value="6_10">6 a 10</option>
+              <option value="11_20">11 a 20</option>
+              <option value="mais_20">Mais de 20</option>
+              <option value="nao_sabe">Não sabe informar</option>
+            </select>
 
-            <section className="cultural-section">
-              <h3>3. Início do uso</h3>
-              <MultiChoiceField
-                title="3.1 Quem mais influenciou o início do seu uso?"
-                options={QUEM_INFLUENCIOU_OPTIONS}
-                values={form.cultural.quemInfluenciou}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "quemInfluenciou", nextValues)
-                }
-              />
+            <select
+              value={form.cigarroEletronico.tipoDispositivo}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "tipoDispositivo", e.target.value)
+              }
+            >
+              <option value="">Tipo de dispositivo utilizado</option>
+              {TIPOS_DISPOSITIVO_VAPE.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
 
-              {form.cultural.quemInfluenciou.includes("outro") && (
-                <input
-                  className="full"
-                  placeholder="3.1 Outro (especificar)"
-                  value={form.cultural.quemInfluenciouOutro}
-                  onChange={(e) =>
-                    updateNested("cultural", "quemInfluenciouOutro", e.target.value)
-                  }
-                />
-              )}
+            <select
+              value={form.cigarroEletronico.usaMaisDeUm}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "usaMaisDeUm", e.target.value)
+              }
+            >
+              <option value="">Usa mais de um tipo de dispositivo?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
 
-              <MultiChoiceField
-                title="3.2 O início do uso ocorreu em contexto ritual/tradicional?"
-                options={INICIO_CONTEXTO_RITUAL_OPTIONS}
-                values={form.cultural.inicioEmContextoRitualTradicional}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "inicioEmContextoRitualTradicional", nextValues)
-                }
-              />
+            <select
+              value={form.cigarroEletronico.compartilhaDispositivo}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "compartilhaDispositivo",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Compartilha dispositivo com outra pessoa?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
 
-              <MultiChoiceField
-                title="3.3 Naquele momento, você sentiu que teve possibilidade real de escolher usar ou não usar?"
-                options={INICIO_CONTEXTO_RITUAL_OPTIONS}
-                values={form.cultural.houveEscolha}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "houveEscolha", nextValues)
-                }
-              />
+            <select
+              value={form.cigarroEletronico.localCompra}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "localCompra", e.target.value)
+              }
+            >
+              <option value="">Costuma comprar onde?</option>
+              <option value="internet">Internet</option>
+              <option value="loja_fisica">Loja física</option>
+              <option value="amigos">Amigos/conhecidos</option>
+              <option value="recebe">Recebe de outra pessoa</option>
+              <option value="outro">Outro</option>
+            </select>
 
-              <MultiChoiceField
-                title="3.4 Com que idade você participou pela primeira vez de uso ritual/tradicional do tabaco?"
-                options={IDADE_PRIMEIRA_PARTICIPACAO_OPTIONS}
-                values={form.cultural.idadePrimeiraParticipacaoRitual}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "idadePrimeiraParticipacaoRitual", nextValues)
-                }
-              />
+            <select
+              value={form.cigarroEletronico.contemNicotina}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "contemNicotina", e.target.value)
+              }
+            >
+              <option value="">O líquido contém nicotina?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+              <option value="nao_sabe">Não sabe</option>
+            </select>
 
-              <MultiChoiceField
-                title="3.5 Com que idade você começou a usar tabaco em contexto ritual/tradicional?"
-                options={IDADE_INICIO_USO_RITUAL_OPTIONS}
-                values={form.cultural.idadeInicioUsoRitual}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "idadeInicioUsoRitual", nextValues)
-                }
-              />
-            </section>
+            <select
+              value={form.cigarroEletronico.concentracaoNicotina}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "concentracaoNicotina",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Concentração de nicotina</option>
+              <option value="baixa">Baixa</option>
+              <option value="media">Média</option>
+              <option value="alta">Alta</option>
+              <option value="nao_sabe">Não sabe</option>
+            </select>
 
-            <section className="cultural-section">
-              <h3>4. Percepção comunitária</h3>
-              <MultiChoiceField
-                title="4.1 Como a comunidade percebe esse uso?"
-                options={PERCEPCAO_COMUNIDADE_OPTIONS}
-                values={form.cultural.percepcaoComunidade}
-                onToggle={(nextValues) =>
-                  updateCulturalChoice(
-                    "percepcaoComunidade",
-                    nextValues,
-                    "percepcaoComunidadeOutro",
-                    ["nao_sabe_informar"]
-                  )
-                }
-              />
+            <select
+              value={form.cigarroEletronico.usaSabores}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "usaSabores", e.target.value)
+              }
+            >
+              <option value="">Usa líquidos com sabores?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
 
-              {form.cultural.percepcaoComunidade.includes("outro") && (
-                <input
-                  className="full"
-                  placeholder="4.1 Outro (especificar)"
-                  value={form.cultural.percepcaoComunidadeOutro}
-                  onChange={(e) =>
-                    updateNested("cultural", "percepcaoComunidadeOutro", e.target.value)
-                  }
-                />
-              )}
+            <select
+              value={form.cigarroEletronico.outrasSubstancias}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "outrasSubstancias", e.target.value)
+              }
+            >
+              <option value="">Já usou com outras substâncias além da nicotina?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+              <option value="nao_sabe">Não sabe</option>
+            </select>
 
-              <MultiChoiceField
-                title="4.2 Para você, existe diferença entre uso ritual/tradicional e uso comercial do tabaco?"
-                options={BINARIO_OPTIONS}
-                values={form.cultural.diferencaTradicionalComercial}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "diferencaTradicionalComercial", nextValues)
-                }
-              />
+            <div className="multi-group full">
+              <p>Quais sabores usa mais?</p>
+              <div className="checks">
+                {SABORES_VAPE.map((item) => (
+                  <label key={item}>
+                    <input
+                      type="checkbox"
+                      checked={form.cigarroEletronico.saboresMaisUsados.includes(item)}
+                      onChange={() =>
+                        updateNested(
+                          "cigarroEletronico",
+                          "saboresMaisUsados",
+                          toggleArray(form.cigarroEletronico.saboresMaisUsados, item)
+                        )
+                      }
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </div>
 
-              <textarea
-                placeholder="4.3 Se sim, qual a principal diferença? (você pode listar mais de uma)"
-                value={form.cultural.diferencaPrincipal}
+            {form.cigarroEletronico.saboresMaisUsados.includes("outros") && (
+              <input
+                className="full"
+                placeholder="Outros sabores"
+                value={form.cigarroEletronico.saboresOutros}
                 onChange={(e) =>
-                  updateNested("cultural", "diferencaPrincipal", e.target.value)
+                  updateNested("cigarroEletronico", "saboresOutros", e.target.value)
                 }
               />
-            </section>
+            )}
 
-            <section className="cultural-section">
-              <h3>5. Produto ou substância utilizada</h3>
-              <MultiChoiceField
-                title="5.1 Qual produto ou substância costuma ser utilizada?"
-                options={PRODUTOS_SUBSTANCIAS.map((item) => ({ value: item, label: item }))}
-                values={form.cultural.produtoSubstanciaUtilizada}
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "produtoSubstanciaUtilizada", nextValues)
-                }
-              />
+            <select
+              value={form.cigarroEletronico.vontadeAoAcordar}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "vontadeAoAcordar",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Quanto tempo após acordar sente vontade de usar?</option>
+              <option value="5min">Nos primeiros 5 minutos</option>
+              <option value="30min">6 a 30 minutos</option>
+              <option value="60min">31 a 60 minutos</option>
+              <option value="apos_60">Após 60 minutos</option>
+              <option value="nao_usa_diariamente">Não usa diariamente</option>
+            </select>
 
-              {form.cultural.produtoSubstanciaUtilizada.includes("outros") && (
-                <input
-                  className="full"
-                  placeholder="5.1 Outros (especificar)"
-                  value={form.cultural.produtoSubstanciaUtilizadaOutros}
-                  onChange={(e) =>
-                    updateNested("cultural", "produtoSubstanciaUtilizadaOutros", e.target.value)
-                  }
-                />
-              )}
+            <select
+              value={form.cigarroEletronico.dificuldadeSemUsar}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "dificuldadeSemUsar", e.target.value)
+              }
+            >
+              <option value="">Dificuldade de ficar sem usar em locais/situações?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
 
-              <MultiChoiceField
-                title="5.2 O produto é principalmente:"
-                options={PRODUTO_PRINCIPAL_ORIGEM_OPTIONS}
-                values={form.cultural.produtoPrincipalOrigem}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateCulturalChoice(
-                    "produtoPrincipalOrigem",
-                    nextValues,
-                    "produtoPrincipalOrigemOutro",
-                    ["nao_sabe_informar", "prefere_nao_responder"]
+            <select
+              value={form.cigarroEletronico.necessidadeForteDia}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "necessidadeForteDia",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Sente necessidade muito forte em algum momento do dia?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.usaDoente}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "usaDoente", e.target.value)
+              }
+            >
+              <option value="">Usa mesmo quando está doente?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.tentouReduzirSemConseguir}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "tentouReduzirSemConseguir",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Já tentou reduzir e não conseguiu?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.abstinenciaQuandoSemUsar}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "abstinenciaQuandoSemUsar",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Sente irritação/ansiedade/vontade forte quando fica sem usar?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.acordaNoiteParaUsar}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "acordaNoiteParaUsar",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Já acordou à noite com vontade de usar?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.motivoInicio}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "motivoInicio", e.target.value)
+              }
+            >
+              <option value="">Por que começou a usar?</option>
+              <option value="curiosidade">Curiosidade</option>
+              <option value="influencia_amigos">Influência de amigos</option>
+              <option value="sabores">Sabores</option>
+              <option value="menos_prejudicial">Achava menos prejudicial</option>
+              <option value="parar_cigarro_comum">Para parar de fumar cigarro comum</option>
+              <option value="ansiedade_estresse">Ansiedade/estresse</option>
+              <option value="outro">Outro</option>
+            </select>
+
+            {form.cigarroEletronico.motivoInicio === "outro" && (
+              <input
+                placeholder="Outro motivo de início"
+                value={form.cigarroEletronico.motivoInicioOutro}
+                onChange={(e) =>
+                  updateNested(
+                    "cigarroEletronico",
+                    "motivoInicioOutro",
+                    e.target.value
                   )
                 }
               />
+            )}
 
-              {form.cultural.produtoPrincipalOrigem.includes("outro") && (
-                <input
-                  className="full"
-                  placeholder="5.2 Outro (especificar)"
-                  value={form.cultural.produtoPrincipalOrigemOutro}
-                  onChange={(e) =>
-                    updateNested("cultural", "produtoPrincipalOrigemOutro", e.target.value)
-                  }
-                />
-              )}
-            </section>
+            <select
+              value={form.cigarroEletronico.motivoContinua}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "motivoContinua", e.target.value)
+              }
+            >
+              <option value="">Principal motivo para continuar usando</option>
+              <option value="prazer">Prazer</option>
+              <option value="relaxamento">Relaxamento</option>
+              <option value="habito">Hábito</option>
+              <option value="dependencia">Dependência</option>
+              <option value="socializacao">Socialização</option>
+              <option value="substituir_cigarro">Substituir o cigarro comum</option>
+              <option value="outro">Outro</option>
+            </select>
 
-            <section className="cultural-section">
-              <h3>6. Contextos e finalidades do uso</h3>
-              <MultiChoiceField
-                title="6.1 Em quais contextos você utiliza?"
-                options={CONTEXTOS_UTILIZA.map((item) => ({ value: item, label: item }))}
-                values={form.cultural.contextosUtiliza}
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "contextosUtiliza", nextValues)
+            {form.cigarroEletronico.motivoContinua === "outro" && (
+              <input
+                placeholder="Outro motivo para continuar"
+                value={form.cigarroEletronico.motivoContinuaOutro}
+                onChange={(e) =>
+                  updateNested(
+                    "cigarroEletronico",
+                    "motivoContinuaOutro",
+                    e.target.value
+                  )
                 }
               />
+            )}
 
-              {form.cultural.contextosUtiliza.includes("outro") && (
-                <input
-                  className="full"
-                  placeholder="6.1 Outro contexto (especificar)"
-                  value={form.cultural.contextosUtilizaOutro}
-                  onChange={(e) =>
-                    updateNested("cultural", "contextosUtilizaOutro", e.target.value)
-                  }
-                />
-              )}
+            <select
+              value={form.cigarroEletronico.fumaCigarroConvencional}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "fumaCigarroConvencional",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Também fuma cigarro convencional?</option>
+              <option value="sim_diariamente">Sim, diariamente</option>
+              <option value="sim_ocasionalmente">Sim, ocasionalmente</option>
+              <option value="nao">Não</option>
+            </select>
 
-              <MultiChoiceField
-                title="6.2 Qual a finalidade atribuída ao uso?"
-                options={FINALIDADES_USO.map((item) => ({ value: item, label: item }))}
-                values={form.cultural.finalidadeUso}
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "finalidadeUso", nextValues)
+            <select
+              value={form.cigarroEletronico.comecouAntesOuDepois}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "comecouAntesOuDepois",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">O uso do cigarro eletrônico começou antes ou depois?</option>
+              <option value="antes">Antes</option>
+              <option value="depois">Depois</option>
+              <option value="nunca_fumou">Nunca fumou cigarro comum</option>
+              <option value="nao_sabe">Não sabe</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.usaParaPararCigarroComum}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "usaParaPararCigarroComum",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Usa para tentar parar de fumar cigarro comum?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
+
+            <div className="multi-group full">
+              <p>Usa outros produtos de tabaco?</p>
+              <div className="checks">
+                {OUTROS_PRODUTOS_TABACO.map((item) => (
+                  <label key={item}>
+                    <input
+                      type="checkbox"
+                      checked={form.cigarroEletronico.outrosProdutosTabaco.includes(
+                        item
+                      )}
+                      onChange={() =>
+                        updateNested(
+                          "cigarroEletronico",
+                          "outrosProdutosTabaco",
+                          toggleArray(form.cigarroEletronico.outrosProdutosTabaco, item)
+                        )
+                      }
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {form.cigarroEletronico.outrosProdutosTabaco.includes("outros") && (
+              <input
+                className="full"
+                placeholder="Outros produtos de tabaco"
+                value={form.cigarroEletronico.outrosProdutosTabacoOutros}
+                onChange={(e) =>
+                  updateNested(
+                    "cigarroEletronico",
+                    "outrosProdutosTabacoOutros",
+                    e.target.value
+                  )
                 }
               />
+            )}
 
-              {form.cultural.finalidadeUso.includes("outro") && (
-                <input
-                  className="full"
-                  placeholder="6.2 Outra finalidade (especificar)"
-                  value={form.cultural.finalidadeUsoOutro}
-                  onChange={(e) =>
-                    updateNested("cultural", "finalidadeUsoOutro", e.target.value)
-                  }
-                />
-              )}
-            </section>
+            <div className="multi-group full">
+              <p>Após usar, sente algum destes sintomas?</p>
+              <div className="checks">
+                {SINTOMAS_VAPE.map((item) => (
+                  <label key={item}>
+                    <input
+                      type="checkbox"
+                      checked={form.cigarroEletronico.sintomasPercebidos.includes(item)}
+                      onChange={() =>
+                        updateNested(
+                          "cigarroEletronico",
+                          "sintomasPercebidos",
+                          toggleArray(form.cigarroEletronico.sintomasPercebidos, item)
+                        )
+                      }
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </div>
 
-            <section className="cultural-section">
-              <h3>7. Forma de consumo</h3>
-              <MultiChoiceField
-                title="7.1 Qual é a principal forma de consumo?"
-                options={FORMA_PRINCIPAL_CONSUMO_OPTIONS}
-                values={form.cultural.formaPrincipalConsumo}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "formaPrincipalConsumo", nextValues)
+            <select
+              value={form.cigarroEletronico.pioraRespiratoria}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "pioraRespiratoria", e.target.value)
+              }
+            >
+              <option value="">Percebe piora de problema respiratório após o uso?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+              <option value="nao_sabe">Não sabe</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.quemUsaPerto}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "quemUsaPerto", e.target.value)
+              }
+            >
+              <option value="">Quem mais usa perto de você?</option>
+              {CONTEXTO_SOCIAL_VAPE.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+
+            <div className="multi-group full">
+              <p>O uso acontece mais em quais situações?</p>
+              <div className="checks">
+                {SITUACOES_USO_VAPE.map((item) => (
+                  <label key={item}>
+                    <input
+                      type="checkbox"
+                      checked={form.cigarroEletronico.situacoesUso.includes(item)}
+                      onChange={() =>
+                        updateNested(
+                          "cigarroEletronico",
+                          "situacoesUso",
+                          toggleArray(form.cigarroEletronico.situacoesUso, item)
+                        )
+                      }
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {form.cigarroEletronico.situacoesUso.includes("outros") && (
+              <input
+                className="full"
+                placeholder="Outras situações de uso"
+                value={form.cigarroEletronico.situacoesUsoOutros}
+                onChange={(e) =>
+                  updateNested(
+                    "cigarroEletronico",
+                    "situacoesUsoOutros",
+                    e.target.value
+                  )
                 }
               />
+            )}
 
-              {form.cultural.formaPrincipalConsumo.includes("outra") && (
-                <input
-                  className="full"
-                  placeholder="7.1 Outra forma de consumo (especificar)"
-                  value={form.cultural.formaPrincipalConsumoOutra}
-                  onChange={(e) =>
-                    updateNested("cultural", "formaPrincipalConsumoOutra", e.target.value)
-                  }
-                />
-              )}
+            <select
+              value={form.cigarroEletronico.incentivoDeAlguem}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "incentivoDeAlguem", e.target.value)
+              }
+            >
+              <option value="">Alguém já incentivou você a usar?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
 
-              <MultiChoiceField
-                title="7.2 O uso ocorre mais frequentemente:"
-                options={USO_OCORRE_FREQUENTEMENTE_OPTIONS}
-                values={form.cultural.usoOcorreMaisFrequentemente}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "usoOcorreMaisFrequentemente", nextValues)
+            <select
+              value={form.cigarroEletronico.achaQueFazMal}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "achaQueFazMal", e.target.value)
+              }
+            >
+              <option value="">Você acha que faz mal à saúde?</option>
+              <option value="sim_muito">Sim, muito</option>
+              <option value="sim_pouco">Sim, um pouco</option>
+              <option value="nao">Não</option>
+              <option value="nao_sabe">Não sabe</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.achaMenosMalQueCigarro}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "achaMenosMalQueCigarro",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Acha que faz menos mal que o cigarro comum?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+              <option value="nao_sabe">Não sabe</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.achaQueCausaDependencia}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "achaQueCausaDependencia",
+                  e.target.value
+                )
+              }
+            >
+              <option value="">Você acredita que pode causar dependência?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+              <option value="nao_sabe">Não sabe</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.pensouEmParar}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "pensouEmParar", e.target.value)
+              }
+            >
+              <option value="">Já pensou em parar de usar?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
+
+            <select
+              value={form.cigarroEletronico.jaTentouParar}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "jaTentouParar", e.target.value)
+              }
+            >
+              <option value="">Já tentou parar?</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+            </select>
+
+            <input
+              placeholder="Quantas tentativas já fez?"
+              value={form.cigarroEletronico.quantasTentativas}
+              onChange={(e) =>
+                updateNested(
+                  "cigarroEletronico",
+                  "quantasTentativas",
+                  e.target.value
+                )
+              }
+            />
+
+            <div className="multi-group full">
+              <p>O que dificultou parar?</p>
+              <div className="checks">
+                {DIFICULDADE_PARAR_VAPE.map((item) => (
+                  <label key={item}>
+                    <input
+                      type="checkbox"
+                      checked={form.cigarroEletronico.dificuldadeParar.includes(item)}
+                      onChange={() =>
+                        updateNested(
+                          "cigarroEletronico",
+                          "dificuldadeParar",
+                          toggleArray(form.cigarroEletronico.dificuldadeParar, item)
+                        )
+                      }
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {form.cigarroEletronico.dificuldadeParar.includes("outro") && (
+              <input
+                className="full"
+                placeholder="Outra dificuldade para parar"
+                value={form.cigarroEletronico.dificuldadePararOutro}
+                onChange={(e) =>
+                  updateNested(
+                    "cigarroEletronico",
+                    "dificuldadePararOutro",
+                    e.target.value
+                  )
                 }
               />
-            </section>
+            )}
 
-            <section className="cultural-section">
-              <h3>8. Uso pessoal específico</h3>
-              <MultiChoiceField
-                title="8.1 Você pessoalmente já utilizou tabaco como medicamento ou em contexto de cura/tratamento tradicional?"
-                options={BINARIO_COM_PREFERE_OPTIONS}
-                values={form.cultural.usoMedicamentoCuraPessoal}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "usoMedicamentoCuraPessoal", nextValues)
-                }
-              />
-
-              <MultiChoiceField
-                title="8.2 Você pessoalmente já utilizou tabaco em rodas de conversa ou reuniões comunitárias?"
-                options={BINARIO_COM_PREFERE_OPTIONS}
-                values={form.cultural.usoRodasConversaPessoal}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "usoRodasConversaPessoal", nextValues)
-                }
-              />
-
-              <MultiChoiceField
-                title="8.3 Você já participou de uso ritual de bebidas alcoólicas?"
-                options={BINARIO_COM_PREFERE_OPTIONS}
-                values={form.cultural.usoRitualBebidasAlcoolicas}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "usoRitualBebidasAlcoolicas", nextValues)
-                }
-              />
-
-              <MultiChoiceField
-                title="8.4 Você sente algum sintoma como tosse, falta de ar, náusea durante o uso do tabaco para os rituais?"
-                options={[
-                  { value: "sim", label: "Sim" },
-                  { value: "nao", label: "Não" },
-                  { value: "nao_sei", label: "Não sei" },
-                ]}
-                values={form.cultural.sintomasDuranteUsoRitual}
-                singleChoice
-                onToggle={(nextValues) =>
-                  updateNested("cultural", "sintomasDuranteUsoRitual", nextValues)
-                }
-              />
-            </section>
+            <select
+              value={form.cigarroEletronico.gostariaAjuda}
+              onChange={(e) =>
+                updateNested("cigarroEletronico", "gostariaAjuda", e.target.value)
+              }
+            >
+              <option value="">Gostaria de receber ajuda para parar?</option>
+              <option value="sim_agora">Sim, agora</option>
+              <option value="sim_depois">Sim, depois</option>
+              <option value="nao">Não</option>
+            </select>
           </div>
         </div>
       )}
@@ -1693,7 +1841,10 @@ export default function App() {
           <strong>Fagerström:</strong> {fagerScore} pontos —{" "}
           {classifyFagerstrom(fagerScore, form.fagerstrom.tipoUsuario)}
         </p>
-        <p><strong>Módulo cultural:</strong> {culturalScore} pontos — {classifyCultural(culturalScore)}</p>
+        <p>
+          <strong>Cigarro eletrônico:</strong> {vapeScore} pontos —{" "}
+          {classifyCigarroEletronico(vapeScore)}
+        </p>
         <p><strong>AUDIT:</strong> {auditScore} pontos — {classifyAUDIT(auditScore)}</p>
         <p><strong>Prioridade final:</strong> {prioridade}</p>
 
@@ -1741,11 +1892,9 @@ export default function App() {
                 <tr>
                   <th>#</th>
                   <th>Nome do usuário</th>
-                  <th>Telefone</th>
-                  <th>Residência</th>
-                  <th>Aldeia ou Polo</th>
                   <th>Município</th>
                   <th>Uso atual</th>
+                  <th>Vape</th>
                   <th>AUDIT</th>
                   <th>Total</th>
                   <th>Prioridade</th>
@@ -1757,11 +1906,9 @@ export default function App() {
                   <tr key={caso.id}>
                     <td>{index + 1}</td>
                     <td>{caso.identificacao}</td>
-                    <td>{caso.telefone || "-"}</td>
-                    <td>{caso.localResidencia}</td>
-                    <td>{caso.aldeia}</td>
                     <td>{caso.municipio}</td>
                     <td>{caso.usoAtual}</td>
+                    <td>{caso.classificacaoCigarroEletronico}</td>
                     <td>{caso.classificacaoAUDIT}</td>
                     <td>{caso.scoreTotal}</td>
                     <td>{caso.prioridadeFinal}</td>
