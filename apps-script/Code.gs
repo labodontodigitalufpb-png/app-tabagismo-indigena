@@ -92,6 +92,7 @@ const CASE_KEY_ORDER = [
   "usoMedicamentoCuraPessoal",
   "usoRodasConversaPessoal",
   "usoRitualBebidasAlcoolicas",
+  "sintomasDuranteUsoRitual",
   "scoreUso",
   "classificacaoUso",
   "scoreFagerstrom",
@@ -106,6 +107,7 @@ const CASE_KEY_ORDER = [
 ];
 
 const CASE_HEADER_LABELS = {
+  aldeia: "Aldeia ou Polo",
   religioes: "C1.1 Religioes/espiritualidades (multipla)",
   religioesOutro: "C1.1 Outro (texto)",
   usoTradicionalExiste: "C2.1 Existe uso tradicional/ritual/espiritual/medicinal",
@@ -136,6 +138,8 @@ const CASE_HEADER_LABELS = {
   usoMedicamentoCuraPessoal: "C8.1 Uso pessoal em cura/tratamento",
   usoRodasConversaPessoal: "C8.2 Uso pessoal em rodas/reunioes",
   usoRitualBebidasAlcoolicas: "C8.3 Uso ritual de bebidas alcoolicas",
+  sintomasDuranteUsoRitual:
+    "C8.4 Sintomas durante uso ritual (tosse/falta de ar/nausea)",
 };
 
 function doGet() {

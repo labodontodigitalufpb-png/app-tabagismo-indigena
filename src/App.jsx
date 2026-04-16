@@ -298,6 +298,7 @@ const initialState = {
     usoMedicamentoCuraPessoal: [],
     usoRodasConversaPessoal: [],
     usoRitualBebidasAlcoolicas: [],
+    sintomasDuranteUsoRitual: [],
   },
   audit: {
     q1: "",
@@ -761,7 +762,7 @@ export default function App() {
             onChange={(e) => updateNested("participante", "sexo", e.target.value)}
           />
           <input
-            placeholder="Aldeia"
+            placeholder="Aldeia ou Polo"
             value={form.participante.aldeia}
             onChange={(e) => updateNested("participante", "aldeia", e.target.value)}
           />
@@ -1556,6 +1557,20 @@ export default function App() {
                   updateNested("cultural", "usoRitualBebidasAlcoolicas", nextValues)
                 }
               />
+
+              <MultiChoiceField
+                title="8.4 Você sente algum sintoma como tosse, falta de ar, náusea durante o uso do tabaco para os rituais?"
+                options={[
+                  { value: "sim", label: "Sim" },
+                  { value: "nao", label: "Não" },
+                  { value: "nao_sei", label: "Não sei" },
+                ]}
+                values={form.cultural.sintomasDuranteUsoRitual}
+                singleChoice
+                onToggle={(nextValues) =>
+                  updateNested("cultural", "sintomasDuranteUsoRitual", nextValues)
+                }
+              />
             </section>
           </div>
         </div>
@@ -1688,7 +1703,7 @@ export default function App() {
                   <th>Nome do usuário</th>
                   <th>Telefone</th>
                   <th>Residência</th>
-                  <th>Aldeia</th>
+                  <th>Aldeia ou Polo</th>
                   <th>Município</th>
                   <th>Uso atual</th>
                   <th>AUDIT</th>
