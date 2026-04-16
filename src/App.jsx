@@ -760,7 +760,7 @@ export default function App() {
       <header className="hero">
         <div className="hero-brand">
           <img
-            src="/logo-app.png"
+            src={`${import.meta.env.BASE_URL}logo-app.png`}
             alt="Logo Ybytu Livre"
             className="hero-logo"
           />
