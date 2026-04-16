@@ -15,6 +15,7 @@ const CASE_KEY_ORDER = [
   "idade",
   "sexo",
   "aldeia",
+  "polo",
   "municipio",
   "estado",
   "etnia",
@@ -156,7 +157,8 @@ const CASE_KEY_ORDER = [
 ];
 
 const CASE_HEADER_LABELS = {
-  aldeia: "Aldeia ou Polo",
+  aldeia: "Aldeia",
+  polo: "Polo",
   religioes: "C1.1 Religioes/espiritualidades (multipla)",
   religioesOutro: "C1.1 Outro (texto)",
   usoTradicionalExiste: "C2.1 Existe uso tradicional/ritual/espiritual/medicinal",

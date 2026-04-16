@@ -241,6 +241,7 @@ const initialState = {
     idade: "",
     sexo: "",
     aldeia: "",
+    polo: "",
     municipio: "",
     estado: "",
     etnia: "",
@@ -802,9 +803,14 @@ export default function App() {
             onChange={(e) => updateNested("participante", "sexo", e.target.value)}
           />
           <input
-            placeholder="Aldeia ou Polo"
+            placeholder="Aldeia"
             value={form.participante.aldeia}
             onChange={(e) => updateNested("participante", "aldeia", e.target.value)}
+          />
+          <input
+            placeholder="Polo"
+            value={form.participante.polo}
+            onChange={(e) => updateNested("participante", "polo", e.target.value)}
           />
           <input
             placeholder="Município"
@@ -1743,7 +1749,8 @@ export default function App() {
                   <th>Nome do usuário</th>
                   <th>Telefone</th>
                   <th>Residência</th>
-                  <th>Aldeia ou Polo</th>
+                  <th>Aldeia</th>
+                  <th>Polo</th>
                   <th>Município</th>
                   <th>Uso atual</th>
                   <th>AUDIT</th>
@@ -1760,6 +1767,7 @@ export default function App() {
                     <td>{caso.telefone || "-"}</td>
                     <td>{caso.localResidencia}</td>
                     <td>{caso.aldeia}</td>
+                    <td>{caso.polo || "-"}</td>
                     <td>{caso.municipio}</td>
                     <td>{caso.usoAtual}</td>
                     <td>{caso.classificacaoAUDIT}</td>
