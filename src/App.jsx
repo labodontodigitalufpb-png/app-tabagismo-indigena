@@ -627,7 +627,7 @@ export default function App() {
         <div className="hero-brand">
           <img
             src={logo}
-            alt="Logo Tabaco Controle"
+            alt="Logo Ybytu Livre"
             className="hero-logo"
             style={{ width: "620px" }}
           />
