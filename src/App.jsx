@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import "./index.css";
-import logo from "./assets/logo.png";
 
 const HEADER_PARTNERSHIP =
   "Parceria PET Saúde Digital Unifal e UFAM / UNESP SJC Odontologia / LABODIGIT UFPB";
@@ -634,7 +633,7 @@ export default function App() {
       <header className="hero">
         <div className="hero-brand">
           <img
-            src={logo}
+            src="/logo-app.png"
             alt="Logo Tabaco Controle"
             className="hero-logo"
             style={{ width: "620px" }}
