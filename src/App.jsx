@@ -635,7 +635,7 @@ export default function App() {
         <div className="hero-brand">
           <img
             src={logo}
-            alt="Logo Tabaco Controle"
+            alt="Logo Tabagismo Indigena"
             className="hero-logo"
             style={{ width: "620px" }}
           />
