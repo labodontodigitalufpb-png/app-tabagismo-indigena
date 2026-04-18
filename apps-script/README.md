@@ -2,7 +2,7 @@
 
 Esta pasta contem o backend Google Apps Script para receber os casos enviados pelo app e gravar tudo em uma planilha do laboratorio.
 
-Este material pertence ao projeto **Tabaco Controle**.
+Este material pertence ao projeto **Tabaco Controle** (nao e o projeto Ybytu Livre).
 
 ## Arquivos
 

@@ -9,7 +9,7 @@
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "logo-tabaco-v2.png",
+      "src": "logo-app.png",
       "sizes": "512x512",
       "type": "image/png"
     }
