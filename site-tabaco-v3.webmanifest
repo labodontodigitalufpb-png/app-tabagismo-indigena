@@ -1,0 +1,17 @@
+{
+  "name": "Tabaco Controle",
+  "short_name": "Tabaco",
+  "description": "Coleta de dados sobre uso de tabaco em contexto indigena.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "logo-tabaco-v3.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
