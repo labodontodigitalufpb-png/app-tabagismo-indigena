@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import "./index.css";
 
 const HEADER_PARTNERSHIP =
@@ -680,51 +681,83 @@ export default function App() {
     setMensagemEnvio("");
 
     try {
-      const formData = new FormData();
       const casosNormalizados = casos.map(normalizeCasePhone);
-
-      formData.append(
-        "payload",
-        JSON.stringify({
-          origem: "app-tabagismo-indigena",
-          timestampEnvio: new Date().toISOString(),
-          quantidadeCasos: casosNormalizados.length,
-          casos: casosNormalizados,
-        })
-      );
-
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: formData,
+      const payload = JSON.stringify({
+        origem: "app-tabagismo-indigena",
+        timestampEnvio: new Date().toISOString(),
+        quantidadeCasos: casosNormalizados.length,
+        casos: casosNormalizados,
       });
+      const requestBody = new URLSearchParams({ payload }).toString();
+      const isNativeRuntime = Capacitor.getPlatform() !== "web";
+      let rawText = "";
 
-      const texto = await response.text();
-      let json = {};
+      if (isNativeRuntime) {
+        const iframeName = `google-sheets-submit-${Date.now()}`;
+        const iframe = document.createElement("iframe");
+        iframe.name = iframeName;
+        iframe.style.display = "none";
+
+        const formElement = document.createElement("form");
+        formElement.method = "POST";
+        formElement.action = GOOGLE_SCRIPT_URL;
+        formElement.target = iframeName;
+        formElement.style.display = "none";
+
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "payload";
+        input.value = payload;
+
+        formElement.appendChild(input);
+        document.body.appendChild(iframe);
+        document.body.appendChild(formElement);
+        formElement.submit();
+
+        window.setTimeout(() => {
+          formElement.remove();
+          iframe.remove();
+        }, 4000);
+
+        setMensagemEnvio("Envio realizado. Confira a planilha para confirmar.");
+        alert("Envio realizado. Confira a planilha para confirmar.");
+        return;
+      } else {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          },
+          body: requestBody,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Falha HTTP ${response.status} ao enviar para a planilha.`);
+        }
+
+        rawText = await response.text();
+      }
+
+      let result = null;
 
       try {
-        json = JSON.parse(texto);
-      } catch {
-        json = {};
+        result = JSON.parse(rawText);
+      } catch (_error) {
+        throw new Error(
+          "Resposta inválida do Apps Script. Verifique se o deploy publicado é o correto."
+        );
       }
 
-      if (!response.ok) {
-        throw new Error(`Erro HTTP ${response.status}`);
+      if (!result || result.sucesso !== true) {
+        const messageFromServer =
+          result && typeof result.mensagem === "string"
+            ? result.mensagem
+            : "Apps Script respondeu sem confirmação de sucesso.";
+        throw new Error(messageFromServer);
       }
 
-      if (json.sucesso === false) {
-        throw new Error(json.mensagem || "Falha no envio.");
-      }
-
-      const detalhesEnvio = [
-        "Dados enviados com sucesso para o Google Sheets.",
-        json.envioId ? `envioId: ${json.envioId}` : "",
-        json.planilhaId ? `planilhaId: ${json.planilhaId}` : "",
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      setMensagemEnvio(detalhesEnvio);
-      alert("Dados enviados com sucesso para o Google Sheets.");
+      setMensagemEnvio("Dados enviados com sucesso para a planilha.");
+      alert("Dados enviados com sucesso para a planilha.");
     } catch (error) {
       console.error("Erro ao enviar para Google Sheets:", error);
       const erroMensagem =
