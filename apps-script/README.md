@@ -1,8 +1,8 @@
-# Apps Script do Laboratorio (Tabaco Controle)
+# Apps Script do Laboratorio (Tabagismo Indigena)
 
 Esta pasta contem o backend Google Apps Script para receber os casos enviados pelo app e gravar tudo em uma planilha do laboratorio.
 
-Este material pertence ao projeto **Tabaco Controle**.
+Este material pertence ao projeto **Tabagismo Indigena**.
 
 ## Arquivos
 
@@ -13,7 +13,7 @@ Este material pertence ao projeto **Tabaco Controle**.
 
 1. Entre na conta Google do laboratorio.
 2. Abra `https://script.new`.
-3. Crie um projeto chamado `Tabaco Controle - Coleta`.
+3. Crie um projeto chamado `Tabagismo Indigena - Coleta`.
 4. Substitua o conteudo do editor por [Code.gs](./Code.gs).
 5. No arquivo de manifesto, substitua pelo conteudo de [appsscript.json](./appsscript.json).
 6. Crie ou escolha uma planilha do Google Sheets do laboratorio e copie o ID dela.

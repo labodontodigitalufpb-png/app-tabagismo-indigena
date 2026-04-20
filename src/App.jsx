@@ -875,7 +875,7 @@ export default function App() {
       scriptStatus = await consultarStatusAppsScript(GOOGLE_SCRIPT_URL);
       const casosNormalizados = casos.map(normalizeCasePhone);
       const payload = JSON.stringify({
-        origem: "app-tabaco-controle",
+        origem: "app-tabagismo-indigena",
         timestampEnvio: new Date().toISOString(),
         quantidadeCasos: casosNormalizados.length,
         casos: casosNormalizados,
@@ -982,14 +982,14 @@ export default function App() {
       <header className="hero">
         <div className="hero-brand">
           <img
-            src={`${import.meta.env.BASE_URL}logo-tabaco-controle.png`}
-            alt="Logo Tabaco Controle"
+            src={`${import.meta.env.BASE_URL}logo-app.png`}
+            alt="Logo Tabagismo Indigena"
             className="hero-logo"
           />
           <div className="hero-text">
             <div className="hero-top">{HEADER_PARTNERSHIP}</div>
-            <h1>Tabaco Controle</h1>
-            <p className="subtitle">Apoio para cuidado, vigilância e cessação do tabagismo</p>
+            <h1>Tabagismo Indigena</h1>
+            <p className="subtitle">Coleta de dados em contexto indigena</p>
           </div>
         </div>
       </header>

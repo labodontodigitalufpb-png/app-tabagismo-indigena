@@ -5,6 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => ({
   // Use base de GitHub Pages apenas no modo dedicado de deploy web.
   // Para Android/Capacitor, o base relativo evita tela branca por caminho absoluto.
-  base: mode === 'ghpages' ? '/tabacocontrole/' : './',
+  base: mode === 'ghpages' ? '/app-tabagismo-indigena/' : './',
   plugins: [react()],
 }))

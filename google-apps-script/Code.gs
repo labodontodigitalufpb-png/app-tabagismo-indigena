@@ -144,7 +144,7 @@ const CASE_HEADER_LABELS = {
 function doGet() {
   return jsonOutput_({
     sucesso: true,
-    mensagem: "Tabaco Controle Apps Script ativo",
+    mensagem: "Tabagismo Indigena Apps Script ativo",
     schemaVersion: SCRIPT_SCHEMA_VERSION,
     spreadsheetId: CONFIG.spreadsheetId,
     casosSheetName: CONFIG.casosSheetName,
