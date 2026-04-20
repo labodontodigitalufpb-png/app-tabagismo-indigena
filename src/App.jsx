@@ -761,7 +761,7 @@ export default function App() {
       <header className="hero">
         <div className="hero-brand">
           <img
-            src={`${import.meta.env.BASE_URL}logo-app.png`}
+            src={`${import.meta.env.BASE_URL}logo-ybytu-livre.png`}
             alt="Logo Tabagismo Indigena"
             className="hero-logo"
           />
