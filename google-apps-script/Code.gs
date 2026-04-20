@@ -5,7 +5,7 @@ const CONFIG = {
   timezone: "America/Fortaleza",
 };
 
-const SCRIPT_SCHEMA_VERSION = "2026-04-20-tabaco-controle-v4";
+const SCRIPT_SCHEMA_VERSION = "2026-04-20-tabagismo-indigena-v1";
 
 const CASE_KEY_ORDER = [
   "id",

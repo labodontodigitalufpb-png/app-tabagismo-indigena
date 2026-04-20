@@ -5,7 +5,7 @@ import "./index.css";
 const HEADER_PARTNERSHIP =
   "Parceria PET Saúde Digital Unifal e UFAM / UNESP SJC Odontologia / LABODIGIT UFPB";
 
-const STORAGE_KEY = "app_tabaco_controle_casos_v1";
+const STORAGE_KEY = "app_tabagismo_indigena_casos_v1";
 const MAX_SCORE_USO = 10;
 const MAX_SCORE_FAGERSTROM = 10;
 const MAX_SCORE_AUDIT = 40;
