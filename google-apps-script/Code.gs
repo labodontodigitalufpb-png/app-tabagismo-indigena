@@ -1,9 +1,13 @@
 const CONFIG = {
-  spreadsheetId: "1PQTTNZfqeHJRL7FOmfDeRgGsKxJCGMxEWQOsg2Lo0io",
+  spreadsheetId: "1FDiacY7_nbl6cNHrvHBcksOud8zEN4-7oFwFDhnjhcA",
   enviosSheetName: "Envios",
   casosSheetName: "Casos",
   timezone: "America/Fortaleza",
 };
+
+const BLOCKED_SPREADSHEET_IDS = [
+  "1PQTTNZfqeHJRL7FOmfDeRgGsKxJCGMxEWQOsg2Lo0io",
+];
 
 const SCRIPT_SCHEMA_VERSION = "2026-04-20-tabagismo-indigena-v1";
 
@@ -14,6 +18,9 @@ const CASE_KEY_ORDER = [
   "telefone",
   "idade",
   "sexo",
+  "dsei",
+  "aldeia",
+  "polo",
   "escolaridade",
   "racaCor",
   "ocupacao",
@@ -117,6 +124,9 @@ const CASE_KEY_ORDER = [
 
 const CASE_HEADER_LABELS = {
   identificacao: "Nome do usuário",
+  dsei: "DSEI",
+  aldeia: "Aldeia",
+  polo: "Polo",
   racaCor: "Raça/cor",
   ine: "INE",
   q1: "Q1",
@@ -207,6 +217,11 @@ function parsePayload_(e) {
 function getSpreadsheet_() {
   if (!CONFIG.spreadsheetId || String(CONFIG.spreadsheetId).indexOf("PREENCHA_") === 0) {
     throw new Error("Configure o spreadsheetId no arquivo Code.gs.");
+  }
+  if (BLOCKED_SPREADSHEET_IDS.indexOf(String(CONFIG.spreadsheetId).trim()) !== -1) {
+    throw new Error(
+      "O spreadsheetId configurado esta bloqueado por seguranca. Use a planilha do projeto Tabagismo Indigena."
+    );
   }
   return SpreadsheetApp.openById(CONFIG.spreadsheetId);
 }

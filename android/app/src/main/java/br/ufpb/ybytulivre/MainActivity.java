@@ -1,4 +1,4 @@
-package com.tabacontrole.app;
+package br.ufpb.ybytulivre;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -240,6 +240,7 @@ const initialState = {
     telefone: "",
     idade: "",
     sexo: "",
+    dsei: "",
     aldeia: "",
     polo: "",
     municipio: "",
@@ -680,51 +681,89 @@ export default function App() {
     setMensagemEnvio("");
 
     try {
-      const formData = new FormData();
       const casosNormalizados = casos.map(normalizeCasePhone);
-
-      formData.append(
-        "payload",
-        JSON.stringify({
+      const enviarLote = async (loteCasos) => {
+        const payload = {
           origem: "app-tabagismo-indigena",
           timestampEnvio: new Date().toISOString(),
-          quantidadeCasos: casosNormalizados.length,
-          casos: casosNormalizados,
-        })
-      );
+          quantidadeCasos: loteCasos.length,
+          casos: loteCasos,
+        };
 
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: formData,
-      });
+        const formData = new FormData();
+        formData.append("payload", JSON.stringify(payload));
 
-      const texto = await response.text();
-      let json = {};
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          body: formData,
+        });
 
-      try {
-        json = JSON.parse(texto);
-      } catch {
-        json = {};
-      }
+        const texto = await response.text();
+        let json = {};
+        try {
+          json = JSON.parse(texto);
+        } catch {
+          json = {};
+        }
 
-      if (!response.ok) {
-        throw new Error(`Erro HTTP ${response.status}`);
-      }
+        if (!response.ok) {
+          throw new Error(`Erro HTTP ${response.status}. Resposta: ${texto.slice(0, 180)}`);
+        }
+        if (json.sucesso === false) {
+          throw new Error(json.mensagem || "Falha no envio.");
+        }
 
-      if (json.sucesso === false) {
-        throw new Error(json.mensagem || "Falha no envio.");
+        return { confirmado: true, envioId: json.envioId || "" };
+      };
+
+      let enviadosConfirmados = 0;
+      let enviadosCompatibilidade = 0;
+      let ultimoEnvioId = "";
+
+      for (const caso of casosNormalizados) {
+        try {
+          const result = await enviarLote([caso]);
+          enviadosConfirmados += 1;
+          if (result.envioId) ultimoEnvioId = result.envioId;
+        } catch (errorLote) {
+          const erroMensagemLote =
+            errorLote instanceof Error && errorLote.message ? errorLote.message : "";
+          const falhaRede =
+            erroMensagemLote.toLowerCase().includes("failed to fetch") ||
+            erroMensagemLote.toLowerCase().includes("networkerror");
+
+          if (!falhaRede) throw errorLote;
+
+          const payloadFallback = {
+            origem: "app-tabagismo-indigena",
+            timestampEnvio: new Date().toISOString(),
+            quantidadeCasos: 1,
+            casos: [caso],
+          };
+          const fallbackData = new FormData();
+          fallbackData.append("payload", JSON.stringify(payloadFallback));
+
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: fallbackData,
+          });
+          enviadosCompatibilidade += 1;
+        }
       }
 
       const detalhesEnvio = [
-        "Dados enviados com sucesso para o Google Sheets.",
-        json.envioId ? `envioId: ${json.envioId}` : "",
-        json.planilhaId ? `planilhaId: ${json.planilhaId}` : "",
+        `Envio concluído. Confirmados: ${enviadosConfirmados}/${casosNormalizados.length}.`,
+        enviadosCompatibilidade > 0
+          ? `Compatibilidade (sem confirmação de resposta): ${enviadosCompatibilidade}.`
+          : "",
+        ultimoEnvioId ? `Último envioId: ${ultimoEnvioId}` : "",
       ]
         .filter(Boolean)
         .join(" ");
 
       setMensagemEnvio(detalhesEnvio);
-      alert("Dados enviados com sucesso para o Google Sheets.");
+      alert(detalhesEnvio);
     } catch (error) {
       console.error("Erro ao enviar para Google Sheets:", error);
       const erroMensagem =
@@ -801,6 +840,11 @@ export default function App() {
             placeholder="Sexo"
             value={form.participante.sexo}
             onChange={(e) => updateNested("participante", "sexo", e.target.value)}
+          />
+          <input
+            placeholder="DSEI"
+            value={form.participante.dsei}
+            onChange={(e) => updateNested("participante", "dsei", e.target.value)}
           />
           <input
             placeholder="Aldeia"
@@ -1749,6 +1793,7 @@ export default function App() {
                   <th>Nome do usuário</th>
                   <th>Telefone</th>
                   <th>Residência</th>
+                  <th>DSEI</th>
                   <th>Aldeia</th>
                   <th>Polo</th>
                   <th>Município</th>
@@ -1766,6 +1811,7 @@ export default function App() {
                     <td>{caso.identificacao}</td>
                     <td>{caso.telefone || "-"}</td>
                     <td>{caso.localResidencia}</td>
+                    <td>{caso.dsei || "-"}</td>
                     <td>{caso.aldeia}</td>
                     <td>{caso.polo || "-"}</td>
                     <td>{caso.municipio}</td>
