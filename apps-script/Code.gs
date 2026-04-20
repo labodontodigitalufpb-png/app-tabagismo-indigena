@@ -2,6 +2,7 @@ const CONFIG = {
   spreadsheetId: "1FDiacY7_nbl6cNHrvHBcksOud8zEN4-7oFwFDhnjhcA",
   enviosSheetName: "Envios",
   casosSheetName: "Casos",
+  casosSheetGid: 944620165,
   timezone: "America/Fortaleza",
 };
 
@@ -9,7 +10,7 @@ const BLOCKED_SPREADSHEET_IDS = [
   "1PQTTNZfqeHJRL7FOmfDeRgGsKxJCGMxEWQOsg2Lo0io",
 ];
 
-const SCRIPT_SCHEMA_VERSION = "2026-04-20-tabagismo-indigena-v2-upsert-id";
+const SCRIPT_SCHEMA_VERSION = "2026-04-20-tabagismo-indigena-v3-lock-gid";
 
 const CASE_KEY_ORDER = [
   "id",
@@ -152,11 +153,20 @@ const CASE_HEADER_LABELS = {
 };
 
 function doGet() {
+  const spreadsheet = getSpreadsheet_();
+  const casosSheet = getSheetByGidOrName_(
+    spreadsheet,
+    CONFIG.casosSheetGid,
+    CONFIG.casosSheetName
+  );
+
   return jsonOutput_({
     sucesso: true,
     mensagem: "Tabagismo Indigena Apps Script ativo",
     schemaVersion: SCRIPT_SCHEMA_VERSION,
     spreadsheetId: CONFIG.spreadsheetId,
+    spreadsheetUrl: spreadsheet.getUrl(),
+    casosSheetGid: casosSheet.getSheetId(),
     casosSheetName: CONFIG.casosSheetName,
     enviosSheetName: CONFIG.enviosSheetName,
     scriptId: ScriptApp.getScriptId(),
@@ -269,7 +279,12 @@ function appendCasos_(spreadsheet, payload, envioId, momento) {
   const dynamicHeaders = orderedKeys.map((key) => headerForKey_(key));
   const headers = metadataHeaders.concat(dynamicHeaders);
 
-  const sheet = ensureSheet_(spreadsheet, CONFIG.casosSheetName, headers);
+  const sheet = ensureSheetByGidOrName_(
+    spreadsheet,
+    CONFIG.casosSheetGid,
+    CONFIG.casosSheetName,
+    headers
+  );
   syncHeaders_(sheet, headers);
   const idHeader = headerForKey_("id");
   const idColumn = headers.indexOf(idHeader) + 1;
@@ -306,6 +321,34 @@ function appendCasos_(spreadsheet, payload, envioId, momento) {
     const startRow = sheet.getLastRow() + 1;
     sheet.getRange(startRow, 1, rowsToInsert.length, headers.length).setValues(rowsToInsert);
   }
+}
+
+function getSheetByGidOrName_(spreadsheet, sheetGid, sheetName) {
+  if (sheetGid !== null && sheetGid !== undefined && String(sheetGid).trim() !== "") {
+    const gidNumber = Number(sheetGid);
+    if (!Number.isNaN(gidNumber)) {
+      const byId = spreadsheet.getSheetById(gidNumber);
+      if (byId) return byId;
+      throw new Error("A aba configurada por gid nao foi encontrada: " + sheetGid);
+    }
+  }
+
+  let byName = spreadsheet.getSheetByName(sheetName);
+  if (!byName) byName = spreadsheet.insertSheet(sheetName);
+  return byName;
+}
+
+function ensureSheetByGidOrName_(spreadsheet, sheetGid, sheetName, headers) {
+  const sheet = getSheetByGidOrName_(spreadsheet, sheetGid, sheetName);
+
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    styleHeader_(sheet, headers.length);
+  } else {
+    syncHeaders_(sheet, headers);
+  }
+
+  return sheet;
 }
 
 function findExistingCaseRowsById_(sheet, idColumn) {
