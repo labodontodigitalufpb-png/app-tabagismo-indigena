@@ -1,4 +1,4 @@
-# Tabagismo Indigena
+# Tabaco Controle
 
 Aplicacao React + Vite para registro de casos e envio de dados para Google Sheets.
 

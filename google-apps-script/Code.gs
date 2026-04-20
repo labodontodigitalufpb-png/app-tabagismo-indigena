@@ -1,11 +1,11 @@
 const CONFIG = {
-  spreadsheetId: "1FDiacY7_nbl6cNHrvHBcksOud8zEN4-7oFwFDhnjhcA",
+  spreadsheetId: "1PQTTNZfqeHJRL7FOmfDeRgGsKxJCGMxEWQOsg2Lo0io",
   enviosSheetName: "Envios",
   casosSheetName: "Casos",
   timezone: "America/Fortaleza",
 };
 
-const SCRIPT_SCHEMA_VERSION = "2026-04-15-case-order-v4";
+const SCRIPT_SCHEMA_VERSION = "2026-04-20-tabaco-controle-v4";
 
 const CASE_KEY_ORDER = [
   "id",
@@ -14,21 +14,21 @@ const CASE_KEY_ORDER = [
   "telefone",
   "idade",
   "sexo",
-  "aldeia",
-  "polo",
+  "escolaridade",
+  "racaCor",
+  "ocupacao",
   "municipio",
   "estado",
-  "etnia",
+  "ine",
+  "tipoEquipe",
+  "profissionalResponsavel",
   "entrevistador",
   "data",
   "idioma",
-  "unidadeSaudeAtendimento",
   "localResidencia",
   "recebeVisitaSaude",
-  "circulaCidadeAldeia",
   "usoAtual",
   "frequencia",
-  "idadeInicioRitual",
   "idadeInicioRegular",
   "produtoPrincipal",
   "produtoOutros",
@@ -37,8 +37,11 @@ const CASE_KEY_ORDER = [
   "exposicaoTrabalhoEscola",
   "tentativaParar",
   "vezesTentou",
+  "tempoUltimaTentativa",
   "motivoRecaida",
   "apoioPrevio",
+  "usouMedicacaoApoioEstruturado",
+  "procurouGrupoCessacaoSemAcesso",
   "interesseParar",
   "estagioMotivacional",
   "encaminhamentoNecessario",
@@ -54,52 +57,6 @@ const CASE_KEY_ORDER = [
   "despertaNoiteFumar",
   "sintomasAbstinencia",
   "tentativasSemSucesso",
-  "jaUsouAlgumaVez",
-  "idadePrimeiroUso",
-  "idadeUsoFrequente",
-  "tempoUso",
-  "vezesPorDia",
-  "tipoDispositivo",
-  "usaMaisDeUm",
-  "compartilhaDispositivo",
-  "localCompra",
-  "contemNicotina",
-  "concentracaoNicotina",
-  "usaSabores",
-  "saboresMaisUsados",
-  "saboresOutros",
-  "outrasSubstancias",
-  "vontadeAoAcordar",
-  "dificuldadeSemUsar",
-  "necessidadeForteDia",
-  "usaDoente",
-  "tentouReduzirSemConseguir",
-  "abstinenciaQuandoSemUsar",
-  "acordaNoiteParaUsar",
-  "motivoInicio",
-  "motivoInicioOutro",
-  "motivoContinua",
-  "motivoContinuaOutro",
-  "fumaCigarroConvencional",
-  "outrosProdutosTabaco",
-  "outrosProdutosTabacoOutros",
-  "comecouAntesOuDepois",
-  "usaParaPararCigarroComum",
-  "sintomasPercebidos",
-  "pioraRespiratoria",
-  "quemUsaPerto",
-  "situacoesUso",
-  "situacoesUsoOutros",
-  "incentivoDeAlguem",
-  "achaQueFazMal",
-  "achaMenosMalQueCigarro",
-  "achaQueCausaDependencia",
-  "pensouEmParar",
-  "jaTentouParar",
-  "quantasTentativas",
-  "dificuldadeParar",
-  "dificuldadePararOutro",
-  "gostariaAjuda",
   "q1",
   "q2",
   "q3",
@@ -110,90 +67,84 @@ const CASE_KEY_ORDER = [
   "q8",
   "q9",
   "q10",
-  "religioes",
-  "religioesOutro",
-  "usoTradicionalExiste",
-  "participouRitualTabaco",
-  "contextosEnvolvemUso",
-  "contextosEnvolvemUsoOutro",
-  "quemInfluenciou",
-  "quemInfluenciouOutro",
-  "inicioEmContextoRitualTradicional",
-  "houveEscolha",
-  "idadePrimeiraParticipacaoRitual",
-  "idadeInicioUsoRitual",
-  "percepcaoComunidade",
-  "percepcaoComunidadeOutro",
-  "diferencaTradicionalComercial",
-  "diferencaPrincipal",
-  "produtoSubstanciaUtilizada",
-  "produtoSubstanciaUtilizadaOutros",
-  "produtoPrincipalOrigem",
-  "produtoPrincipalOrigemOutro",
-  "contextosUtiliza",
-  "contextosUtilizaOutro",
-  "finalidadeUso",
-  "finalidadeUsoOutro",
-  "formaPrincipalConsumo",
-  "formaPrincipalConsumoOutra",
-  "usoOcorreMaisFrequentemente",
-  "usoMedicamentoCuraPessoal",
-  "usoRodasConversaPessoal",
-  "usoRitualBebidasAlcoolicas",
+  "upenn_q1",
+  "upenn_q2",
+  "upenn_q3",
+  "upenn_q4",
+  "upenn_q5",
+  "upenn_q6",
+  "upenn_q7",
+  "upenn_q8",
+  "upenn_q9",
+  "upenn_q10",
+  "jaUsouAlgumaVez",
+  "idadePrimeiroUso",
+  "idadeUsoFrequente",
+  "tempoUso",
+  "frequenciaUso",
+  "vezesPorDia",
+  "tipoDispositivo",
+  "usaMaisDeUm",
+  "compartilhaDispositivo",
+  "localCompra",
+  "localCompraOutros",
+  "contemNicotina",
+  "concentracaoNicotina",
+  "usaSabores",
+  "saboresMaisUsados",
+  "saboresOutros",
+  "outrasSubstancias",
+  "outrasSubstanciasOutras",
+  "usoDualTabacoCombustivel",
+  "usaAoAcordar",
+  "tentativasParar",
   "scoreUso",
   "classificacaoUso",
   "scoreFagerstrom",
   "classificacaoFagerstrom",
-  "scoreCigarroEletronico",
-  "classificacaoCigarroEletronico",
-  "scoreCultural",
-  "classificacaoCultural",
   "scoreAUDIT",
   "classificacaoAUDIT",
+  "scoreUPenn",
+  "classificacaoUPenn",
+  "scoreEletronico",
+  "classificacaoEletronico",
+  "riscoIntegrado",
+  "condutaSugerida",
   "scoreTotal",
   "prioridadeFinal",
   "classificacaoGeral",
 ];
 
 const CASE_HEADER_LABELS = {
-  aldeia: "Aldeia",
-  polo: "Polo",
-  religioes: "C1.1 Religioes/espiritualidades (multipla)",
-  religioesOutro: "C1.1 Outro (texto)",
-  usoTradicionalExiste: "C2.1 Existe uso tradicional/ritual/espiritual/medicinal",
-  participouRitualTabaco: "C2.2 Ja participou de ritual com tabaco",
-  contextosEnvolvemUso: "C2.3 Contextos que envolvem uso (multipla)",
-  contextosEnvolvemUsoOutro: "C2.3 Outro contexto (texto)",
-  quemInfluenciou: "C3.1 Quem influenciou o inicio",
-  quemInfluenciouOutro: "C3.1 Outro influenciador (texto)",
-  inicioEmContextoRitualTradicional: "C3.2 Inicio em contexto ritual/tradicional",
-  houveEscolha: "C3.3 Possibilidade real de escolha",
-  idadePrimeiraParticipacaoRitual: "C3.4 Idade primeira participacao ritual",
-  idadeInicioUsoRitual: "C3.5 Idade inicio uso ritual",
-  percepcaoComunidade: "C4.1 Percepcao da comunidade",
-  percepcaoComunidadeOutro: "C4.1 Outra percepcao (texto)",
-  diferencaTradicionalComercial: "C4.2 Diferenca ritual/tradicional vs comercial",
-  diferencaPrincipal: "C4.3 Diferenca principal (texto)",
-  produtoSubstanciaUtilizada: "C5.1 Produto/substancia utilizada (multipla)",
-  produtoSubstanciaUtilizadaOutros: "C5.1 Outros produtos (texto)",
-  produtoPrincipalOrigem: "C5.2 Origem principal do produto",
-  produtoPrincipalOrigemOutro: "C5.2 Outra origem (texto)",
-  contextosUtiliza: "C6.1 Contextos em que utiliza (multipla)",
-  contextosUtilizaOutro: "C6.1 Outro contexto (texto)",
-  finalidadeUso: "C6.2 Finalidades do uso (multipla)",
-  finalidadeUsoOutro: "C6.2 Outra finalidade (texto)",
-  formaPrincipalConsumo: "C7.1 Forma principal de consumo",
-  formaPrincipalConsumoOutra: "C7.1 Outra forma (texto)",
-  usoOcorreMaisFrequentemente: "C7.2 Uso ocorre mais frequentemente",
-  usoMedicamentoCuraPessoal: "C8.1 Uso pessoal em cura/tratamento",
-  usoRodasConversaPessoal: "C8.2 Uso pessoal em rodas/reunioes",
-  usoRitualBebidasAlcoolicas: "C8.3 Uso ritual de bebidas alcoolicas",
+  identificacao: "Nome do usuário",
+  racaCor: "Raça/cor",
+  ine: "INE",
+  q1: "Q1",
+  q2: "Q2",
+  q3: "Q3",
+  q4: "Q4",
+  q5: "Q5",
+  q6: "Q6",
+  q7: "Q7",
+  q8: "Q8",
+  q9: "Q9",
+  q10: "Q10",
+  upenn_q1: "UPenn Q1",
+  upenn_q2: "UPenn Q2",
+  upenn_q3: "UPenn Q3",
+  upenn_q4: "UPenn Q4",
+  upenn_q5: "UPenn Q5",
+  upenn_q6: "UPenn Q6",
+  upenn_q7: "UPenn Q7",
+  upenn_q8: "UPenn Q8",
+  upenn_q9: "UPenn Q9",
+  upenn_q10: "UPenn Q10",
 };
 
 function doGet() {
   return jsonOutput_({
     sucesso: true,
-    mensagem: "YBYTU V4 ativo",
+    mensagem: "Tabaco Controle Apps Script ativo",
     schemaVersion: SCRIPT_SCHEMA_VERSION,
     spreadsheetId: CONFIG.spreadsheetId,
     casosSheetName: CONFIG.casosSheetName,
@@ -217,7 +168,7 @@ function doPost(e) {
       sucesso: true,
       mensagem: "Dados registrados com sucesso.",
       schemaVersion: SCRIPT_SCHEMA_VERSION,
-      envioId,
+      envioId: envioId,
       planilhaId: spreadsheet.getId(),
       quantidadeCasos: Array.isArray(payload.casos) ? payload.casos.length : 0,
     });
@@ -254,10 +205,9 @@ function parsePayload_(e) {
 }
 
 function getSpreadsheet_() {
-  if (!CONFIG.spreadsheetId || CONFIG.spreadsheetId.indexOf("PREENCHA_") === 0) {
+  if (!CONFIG.spreadsheetId || String(CONFIG.spreadsheetId).indexOf("PREENCHA_") === 0) {
     throw new Error("Configure o spreadsheetId no arquivo Code.gs.");
   }
-
   return SpreadsheetApp.openById(CONFIG.spreadsheetId);
 }
 
@@ -269,6 +219,7 @@ function appendResumoEnvio_(spreadsheet, payload, envioId, momento) {
     "timestampEnvio",
     "quantidadeCasosInformada",
     "quantidadeCasosRecebida",
+    "schemaVersion",
   ];
 
   const row = [
@@ -278,6 +229,7 @@ function appendResumoEnvio_(spreadsheet, payload, envioId, momento) {
     sanitizeValue_(payload.timestampEnvio),
     Number(payload.quantidadeCasos || 0),
     Array.isArray(payload.casos) ? payload.casos.length : 0,
+    SCRIPT_SCHEMA_VERSION,
   ];
 
   const sheet = ensureSheet_(spreadsheet, CONFIG.enviosSheetName, headers);
@@ -293,6 +245,7 @@ function appendCasos_(spreadsheet, payload, envioId, momento) {
     "recebidoEm",
     "origem",
     "timestampEnvio",
+    "schemaVersion",
     "indiceCaso",
   ];
 
@@ -310,6 +263,7 @@ function appendCasos_(spreadsheet, payload, envioId, momento) {
       formatDate_(momento),
       sanitizeValue_(payload.origem),
       sanitizeValue_(payload.timestampEnvio),
+      SCRIPT_SCHEMA_VERSION,
       index + 1,
     ];
 
@@ -359,22 +313,20 @@ function styleHeader_(sheet, columnCount) {
 
 function collectCaseKeys_(cases) {
   const map = {};
-
   cases.forEach((item) => {
     Object.keys(item || {}).forEach((key) => {
       map[key] = true;
     });
   });
-
   return Object.keys(map).sort();
 }
 
 function orderCaseKeys_(keys) {
-  const remaining = (keys || [])
-    .filter((key) => CASE_KEY_ORDER.indexOf(key) === -1)
-    .sort();
+  const list = Array.isArray(keys) ? keys : [];
 
-  return CASE_KEY_ORDER.concat(remaining);
+  const known = CASE_KEY_ORDER.filter((key) => list.indexOf(key) !== -1);
+  const remaining = list.filter((key) => CASE_KEY_ORDER.indexOf(key) === -1).sort();
+  return known.concat(remaining);
 }
 
 function headerForKey_(key) {
@@ -386,9 +338,7 @@ function headersEqual_(currentHeaders, targetHeaders) {
   if (currentHeaders.length < targetHeaders.length) return false;
 
   for (let i = 0; i < targetHeaders.length; i += 1) {
-    if ((currentHeaders[i] || "") !== targetHeaders[i]) {
-      return false;
-    }
+    if ((currentHeaders[i] || "") !== targetHeaders[i]) return false;
   }
 
   return true;
