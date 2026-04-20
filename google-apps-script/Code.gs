@@ -9,7 +9,7 @@ const BLOCKED_SPREADSHEET_IDS = [
   "1PQTTNZfqeHJRL7FOmfDeRgGsKxJCGMxEWQOsg2Lo0io",
 ];
 
-const SCRIPT_SCHEMA_VERSION = "2026-04-20-tabagismo-indigena-v1";
+const SCRIPT_SCHEMA_VERSION = "2026-04-20-tabagismo-indigena-v2-upsert-id";
 
 const CASE_KEY_ORDER = [
   "id",
@@ -271,8 +271,12 @@ function appendCasos_(spreadsheet, payload, envioId, momento) {
 
   const sheet = ensureSheet_(spreadsheet, CONFIG.casosSheetName, headers);
   syncHeaders_(sheet, headers);
+  const idHeader = headerForKey_("id");
+  const idColumn = headers.indexOf(idHeader) + 1;
+  const existingRowsById = findExistingCaseRowsById_(sheet, idColumn);
+  const rowsToInsert = [];
 
-  const rows = cases.map((item, index) => {
+  cases.forEach((item, index) => {
     const metadataValues = [
       envioId,
       formatDate_(momento),
@@ -283,11 +287,41 @@ function appendCasos_(spreadsheet, payload, envioId, momento) {
     ];
 
     const caseValues = orderedKeys.map((key) => sanitizeValue_(item[key]));
-    return metadataValues.concat(caseValues);
+    const rowValues = metadataValues.concat(caseValues);
+    const caseId = sanitizeValue_(item.id).trim();
+    const existingRow = caseId && existingRowsById[caseId];
+
+    if (existingRow) {
+      sheet.getRange(existingRow, 1, 1, headers.length).setValues([rowValues]);
+      return;
+    }
+
+    rowsToInsert.push(rowValues);
+    if (caseId) {
+      existingRowsById[caseId] = sheet.getLastRow() + rowsToInsert.length;
+    }
   });
 
-  const startRow = sheet.getLastRow() + 1;
-  sheet.getRange(startRow, 1, rows.length, headers.length).setValues(rows);
+  if (rowsToInsert.length > 0) {
+    const startRow = sheet.getLastRow() + 1;
+    sheet.getRange(startRow, 1, rowsToInsert.length, headers.length).setValues(rowsToInsert);
+  }
+}
+
+function findExistingCaseRowsById_(sheet, idColumn) {
+  if (!idColumn || idColumn < 1 || sheet.getLastRow() <= 1) return {};
+
+  const lastRow = sheet.getLastRow();
+  const values = sheet.getRange(2, idColumn, lastRow - 1, 1).getValues();
+  const map = {};
+
+  values.forEach((row, index) => {
+    const id = sanitizeValue_(row[0]).trim();
+    if (!id || map[id]) return;
+    map[id] = index + 2;
+  });
+
+  return map;
 }
 
 function ensureSheet_(spreadsheet, sheetName, headers) {
