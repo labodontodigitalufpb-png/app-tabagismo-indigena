@@ -1,59 +1,66 @@
-# Tabagismo Indigena
+# 📊 Mapeamento de Tabagismo em Comunidades Indígenas
 
-Aplicacao React + Vite para registro de casos e envio de dados para Google Sheets.
+Aplicação web desenvolvida com **React + Vite** para coleta, armazenamento e gerenciamento de dados relacionados ao tabagismo em populações indígenas.
 
-## Rodando localmente
+O objetivo do projeto é facilitar o **registro estruturado de casos**, permitindo análises futuras e apoio na tomada de decisões em saúde pública.
+
+---
+
+## 🚀 Sobre o Projeto
+
+Esta aplicação permite:
+
+* Registrar casos de tabagismo em comunidades indígenas
+* Armazenar dados localmente no navegador (via `localStorage`)
+* Gerenciar informações de forma simples e acessível
+* Centralizar dados para análise e acompanhamento
+
+O sistema foi pensado para ser leve, intuitivo e funcional mesmo em ambientes com conexão limitada.
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+* React
+* Vite
+* JavaScript
+
+---
+
+## ▶️ Executando o Projeto Localmente
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Integracao com Google Sheets
+Após iniciar, acesse o projeto no navegador pelo endereço indicado no terminal.
 
-O app possui o botao `Enviar todos para Google Sheets` e faz `POST` para uma URL de Google Apps Script.
+---
 
-### 1. Configurar a URL no front-end
+## 💾 Armazenamento de Dados
 
-Crie um arquivo `.env` na raiz do projeto com:
+Os dados inseridos são armazenados localmente no navegador utilizando `localStorage`.
 
-```env
-VITE_GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/SEU_DEPLOYMENT_ID/exec
-```
+⚠️ Isso significa que:
 
-Ha um exemplo em [.env.example](.env.example).
+* Os dados permanecem salvos mesmo após fechar o navegador
+* A remoção deve ser feita manualmente pelo usuário
 
-### 2. Criar a planilha
+---
 
-No Google Sheets, crie uma planilha e uma aba chamada `Respostas` (ou outro nome de sua preferencia).
+## 🎯 Objetivo do Projeto
 
-### 3. Criar o Apps Script
+Este projeto tem como finalidade apoiar iniciativas de:
 
-No menu da planilha:
+* Monitoramento do tabagismo em populações indígenas
+* Coleta de dados para estudos e pesquisas
+* Apoio a políticas públicas de saúde
 
-`Extensoes` -> `Apps Script`
+---
 
-Cole o conteudo de [google-apps-script/Code.gs](google-apps-script/Code.gs) no editor do Apps Script.
+## 📌 Observações
 
-### 4. Publicar
-
-No Apps Script:
-
-`Implantar` -> `Nova implantacao` -> `Aplicativo da Web`
-
-Use algo como:
-
-- Executar como: `Voce`
-- Quem tem acesso: `Qualquer pessoa`
-
-Depois copie a URL final `/exec` e atualize o valor no `.env`.
-
-### 5. Enviar os dados
-
-1. Salve um ou mais casos no app.
-2. Clique em `Enviar todos para Google Sheets`.
-3. Verifique se as linhas apareceram na planilha.
-
-## Observacao
-
-Os casos continuam sendo guardados localmente no navegador via `localStorage` ate serem removidos manualmente.
+* Projeto voltado para fins acadêmicos e de coleta de dados
+* Pode ser expandido com backend, autenticação e banco de dados
+* Estrutura simples para facilitar manutenção e evolução
