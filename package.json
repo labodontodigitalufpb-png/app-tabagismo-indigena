@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:ios": "vite build && cap sync ios",
     "build:ghpages": "vite build --mode ghpages",
     "preview": "vite preview"
   },
@@ -13,6 +14,7 @@
     "@capacitor/android": "^8.3.0",
     "@capacitor/cli": "^8.3.0",
     "@capacitor/core": "^8.3.0",
+    "@capacitor/ios": "^8.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
